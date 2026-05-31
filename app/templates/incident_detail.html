@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Incident {{ incident.incident_id }} — ROADSoS AI{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Back -->
+    <a href="/reports" class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition mb-6">
+        <i class="fa-solid fa-arrow-left"></i> Back to Reports
+    </a>
+
+    <!-- Header Card -->
+    <div class="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 mb-6 text-white shadow-lg shadow-red-500/20">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/20">
+                        {{ incident.incident_type | replace('_',' ') | upper if incident.incident_type else 'ACCIDENT' }}
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                        {% if incident.status == 'active' %}bg-white text-red-600{% else %}bg-green-400/30 text-white{% endif %}">
+                        {{ incident.status | upper }}
+                    </span>
+                </div>
+                <h1 class="text-2xl font-extrabold">{{ incident.incident_id }}</h1>
+                <p class="text-red-200 text-sm mt-1">{{ incident.created_at.strftime("%d %B %Y, %I:%M:%S %p UTC") }}</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="generateReport('{{ incident.incident_id }}', 'pdf')" class="flex items-center gap-1.5 px-4 py-2 bg-white text-red-600 font-bold rounded-xl text-sm hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-file-pdf"></i> PDF
+                </button>
+                <button onclick="generateReport('{{ incident.incident_id }}', 'json')" class="flex items-center gap-1.5 px-4 py-2 bg-white/20 text-white font-bold rounded-xl text-sm hover:bg-white/30 transition">
+                    <i class="fa-solid fa-file-code"></i> JSON
+                </button>
+                {% if incident.status == 'active' %}
+                <button onclick="resolveIncident('{{ incident.incident_id }}')" class="flex items-center gap-1.5 px-4 py-2 bg-green-500 text-white font-bold rounded-xl text-sm hover:bg-green-600 transition" id="resolve-btn">
+                    <i class="fa-solid fa-circle-check"></i> Resolve
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Main Details -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- AI Analysis -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip text-primary"></i> AI Analysis
+                </h2>
+
+                <div class="flex items-center gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Severity Level</p>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold
+                            {% if incident.severity_level == 'critical' %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400
+                            {% elif incident.severity_level == 'high' %}bg-orange-100 dark:bg-orange-900/30 text-orange-700
+                            {% elif incident.severity_level == 'moderate' %}bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700
+                            {% else %}bg-green-100 dark:bg-green-900/30 text-green-700{% endif %}">
+                            {{ incident.severity_level | upper if incident.severity_level else 'UNKNOWN' }}
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Score</p>
+                        <p class="text-2xl font-extrabold text-gray-900 dark:text-white">{{ incident.severity_score or 0 }}<span class="text-sm font-normal text-gray-400">/100</span></p>
+                    </div>
+                </div>
+
+                {% if incident.ai_summary %}
+                <div class="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 mb-4">
+                    <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{{ incident.ai_summary }}</p>
+                </div>
+                {% endif %}
+
+                {% if ai_data.get('recommended_actions') %}
+                <div>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Recommended Actions</p>
+                    <ul class="space-y-1.5">
+                        {% for action in ai_data.recommended_actions[:6] %}
+                        <li class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fa-solid fa-circle-arrow-right text-primary mt-0.5 flex-shrink-0"></i> {{ action }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Nearby Resources -->
+            {% if resources %}
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-primary"></i> Nearby Resources
+                </h2>
+                <div class="space-y-3">
+                    {% for r in resources %}
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
+                        <span class="text-2xl">{{ r.icon if r.icon else '📍' }}</span>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-800 dark:text-white">{{ r.name or r.type }}</p>
+                            <p class="text-xs text-gray-400">{{ r.type | replace('_',' ') | title }} · {{ "%.1f"|format(r.distance_km) }} km · ~{{ r.travel_time_min }} min</p>
+                        </div>
+                        <a href="https://www.openstreetmap.org/directions?to={{ r.lat }},{{ r.lon }}" target="_blank"
+                            class="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition font-semibold">
+                            Navigate
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: Metadata -->
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Location</h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="text-xs text-gray-400">Coordinates</p>
+                        <p class="font-mono text-gray-800 dark:text-white font-semibold">{{ "%.6f"|format(incident.latitude) }}, {{ "%.6f"|format(incident.longitude) }}</p>
+                    </div>
+                    {% if incident.address %}
+                    <div>
+                        <p class="text-xs text-gray-400">Address</p>
+                        <p class="text-gray-700 dark:text-gray-300">{{ incident.address }}</p>
+                    </div>
+                    {% endif %}
+                    {% if incident.speed_at_incident %}
+                    <div>
+                        <p class="text-xs text-gray-400">Speed at Incident</p>
+                        <p class="font-semibold text-gray-800 dark:text-white">{{ "%.1f"|format(incident.speed_at_incident) }} km/h</p>
+                    </div>
+                    {% endif %}
+                    <a href="https://www.openstreetmap.org/?mlat={{ incident.latitude }}&mlon={{ incident.longitude }}&zoom=16"
+                        target="_blank"
+                        class="flex items-center justify-center gap-2 w-full mt-2 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition text-xs border border-blue-100 dark:border-blue-800">
+                        <i class="fa-solid fa-map-location-dot"></i> Open in Map
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Incident Details</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between"><span class="text-gray-400">Network</span><span class="font-medium dark:text-gray-200">{{ incident.network_status | capitalize if incident.network_status else 'Unknown' }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">Heading</span><span class="font-medium dark:text-gray-200">{{ "%.1f°"|format(incident.heading) if incident.heading else 'N/A' }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-400">Incident ID</span><span class="font-mono text-xs font-semibold dark:text-gray-200">{{ incident.incident_id }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function generateReport(id, format) {
+    const res = await fetch(`/api/reports/generate/${id}/${format}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.download_url) window.open(data.download_url, '_blank');
+    else alert('Failed to generate report.');
+}
+
+async function resolveIncident(id) {
+    if (!confirm('Mark this incident as resolved?')) return;
+    const btn = document.getElementById('resolve-btn');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    const res = await fetch(`/api/incidents/${id}/resolve`, { method: 'POST' });
+    if (res.ok) window.location.reload();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Create Account — ROADSoS AI{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 dark:bg-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+            <div class="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-500/30 mb-6">
+                <i class="fa-solid fa-user-plus text-2xl"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">Create Your Profile</h2>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Takes 60 seconds. It could save your life.</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 p-8">
+            {% if error %}
+            <div class="mb-6 flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
+                <i class="fa-solid fa-circle-exclamation text-lg"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/auth/register" class="space-y-5" id="register-form">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Full Name</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-user"></i></div>
+                        <input id="name" name="name" type="text" autocomplete="name" required
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white bg-white dark:bg-slate-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="John Doe">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-envelope"></i></div>
+                        <input id="email" name="email" type="email" autocomplete="email" required
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white bg-white dark:bg-slate-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="you@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Phone Number <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-phone"></i></div>
+                        <input id="phone" name="phone" type="tel" autocomplete="tel"
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white bg-white dark:bg-slate-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="+91 9876543210">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400"><i class="fa-solid fa-lock"></i></div>
+                        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8"
+                            class="w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-900 dark:text-white bg-white dark:bg-slate-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                            placeholder="Min. 8 characters"
+                            oninput="checkStrength(this.value)">
+                        <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fa-solid fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Password strength meter -->
+                    <div class="mt-2 flex gap-1.5">
+                        <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-slate-600 overflow-hidden"><div id="s1" class="h-full w-0 transition-all duration-300 rounded-full"></div></div>
+                        <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-slate-600 overflow-hidden"><div id="s2" class="h-full w-0 transition-all duration-300 rounded-full"></div></div>
+                        <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-slate-600 overflow-hidden"><div id="s3" class="h-full w-0 transition-all duration-300 rounded-full"></div></div>
+                        <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-slate-600 overflow-hidden"><div id="s4" class="h-full w-0 transition-all duration-300 rounded-full"></div></div>
+                    </div>
+                    <p id="strength-label" class="text-xs text-gray-400 mt-1"></p>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <input id="terms" name="terms" type="checkbox" required
+                        class="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary">
+                    <label for="terms" class="text-sm text-gray-600 dark:text-gray-400">
+                        I agree to the <a href="#" class="text-primary hover:underline font-medium">Terms of Service</a> and understand that my medical data is stored securely.
+                    </label>
+                </div>
+
+                <button type="submit" id="register-btn"
+                    class="w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-red-500/30 transition transform hover:-translate-y-0.5 active:translate-y-0">
+                    <i class="fa-solid fa-user-check"></i>
+                    Create Emergency Profile
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Already have an account?
+                    <a href="/auth/login" class="font-semibold text-primary hover:text-primary-hover transition">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        const eye = document.getElementById(id + '-eye');
+        input.type = input.type === 'password' ? 'text' : 'password';
+        eye.classList.toggle('fa-eye');
+        eye.classList.toggle('fa-eye-slash');
+    }
+
+    function checkStrength(val) {
+        let score = 0;
+        const colors = ['bg-red-500', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
+        const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        for (let i = 1; i <= 4; i++) {
+            const el = document.getElementById('s' + i);
+            el.className = 'h-full transition-all duration-300 rounded-full';
+            if (i <= score) {
+                el.classList.add('w-full', colors[score - 1]);
+            } else {
+                el.classList.add('w-0');
+            }
+        }
+        document.getElementById('strength-label').textContent = val.length > 0 ? labels[score] : '';
+    }
+
+    document.getElementById('register-form').addEventListener('submit', function() {
+        const btn = document.getElementById('register-btn');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Profile...';
+        btn.disabled = true;
+    });
+</script>
+{% endblock %}

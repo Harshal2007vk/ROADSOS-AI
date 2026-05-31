@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Emergency Tracker - {{ incident.incident_id }} - ROADSoS AI{% endblock %}
+
+{% block content %}
+<style>
+    #trackMap {
+        height: 350px;
+        border-radius: 1.5rem;
+        z-index: 1;
+    }
+    .pulse-ring {
+        border: 3px solid var(--primary, #DC2626);
+        border-radius: 50%;
+        animation: pulse-ring 1.5s infinite;
+    }
+    @keyframes pulse-ring {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+</style>
+
+<div class="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Public Notice Header -->
+    <div class="glass dark:glass-dark border border-blue-200/50 dark:border-blue-900/30 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3 text-blue-700 dark:text-blue-400">
+            <i class="fa-solid fa-circle-info text-2xl"></i>
+            <div>
+                <h4 class="text-sm font-bold">Public Emergency Tracking Portal</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Use this page to track response status and victim location. Share this URL with emergency responders or family.</p>
+            </div>
+        </div>
+        <button onclick="copyShareUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow-md flex items-center gap-1.5">
+            <i class="fa-solid fa-share-nodes"></i> Share Link
+        </button>
+    </div>
+
+    <!-- Live Status Card -->
+    <div class="bg-gradient-to-r {% if incident.status == 'active' %}from-red-600 to-red-800 shadow-red-500/20{% else %}from-green-600 to-green-800 shadow-green-500/20{% endif %} rounded-3xl p-6 mb-6 text-white shadow-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/20">
+                        {{ incident.incident_type | replace('_',' ') | upper if incident.incident_type else 'EMERGENCY' }}
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {% if incident.status == 'active' %}bg-white text-red-600 animate-pulse{% else %}bg-green-400/30 text-white{% endif %}">
+                        {{ incident.status | upper }}
+                    </span>
+                </div>
+                <h1 class="text-3xl font-black">{{ incident.incident_id }}</h1>
+                <p class="text-red-100 dark:text-green-100 text-sm mt-1">Incident Reported: {{ incident.created_at.strftime("%d %b %Y, %I:%M:%S %p") }}</p>
+            </div>
+            
+            <div class="text-right sm:text-right text-white">
+                <p class="text-xs text-red-200 dark:text-green-200 font-bold uppercase tracking-widest">Medical Readiness</p>
+                <p class="text-2xl font-black">{{ 'B+' if profile and profile.blood_group else 'A+' }} Blood Type</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Map & AI guidance -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Map Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 p-4">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 px-2">
+                    <i class="fa-solid fa-map-location-dot text-primary"></i> Victim Live Location
+                </h2>
+                <div id="trackMap" class="bg-gray-100 dark:bg-slate-700"></div>
+                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-4 px-2">
+                    <span>GPS Coordinates: <strong class="font-mono text-gray-700 dark:text-gray-300">{{ "%.6f"|format(incident.latitude) }}, {{ "%.6f"|format(incident.longitude) }}</strong></span>
+                    {% if incident.speed_at_incident %}
+                    <span>Speed: <strong class="text-gray-700 dark:text-gray-300">{{ "%.1f"|format(incident.speed_at_incident) }} km/h</strong></span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- AI Guidance & First Aid -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-robot text-primary"></i> AI Emergency Response Guide
+                </h2>
+                {% if incident.ai_summary %}
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl p-4 mb-4">
+                    <p class="text-sm text-blue-950 dark:text-blue-200 font-medium leading-relaxed">{{ incident.ai_summary }}</p>
+                </div>
+                {% endif %}
+
+                {% if ai_data.get('recommended_actions') %}
+                <div>
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">First Aid & Crisis Action Items</h4>
+                    <ul class="space-y-2">
+                        {% for action in ai_data.recommended_actions %}
+                        <li class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fa-solid fa-circle-check text-green-500 mt-0.5 flex-shrink-0"></i> 
+                            <span>{{ action }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar (Emergency Contacts, Victim Profile info) -->
+        <div class="space-y-6">
+            <!-- Victim Emergency Contacts -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-address-book text-primary"></i> Notified Contacts
+                </h2>
+                <div class="space-y-3">
+                    {% if contacts %}
+                        {% for c in contacts %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
+                                    {{ c.name[0] | upper }}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800 dark:text-white">{{ c.name }}</p>
+                                    <p class="text-xs text-gray-400">{{ c.relationship }}</p>
+                                </div>
+                            </div>
+                            <a href="tel:{{ c.phone }}" class="w-8 h-8 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center hover:bg-green-100">
+                                <i class="fa-solid fa-phone text-xs"></i>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-xs text-gray-400 text-center py-4">No emergency contacts registered.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Victim Basic Medical Info -->
+            <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 p-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-notes-medical text-primary"></i> Critical Medical Info
+                </h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between border-b border-gray-100 dark:border-slate-700 pb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Allergies</span>
+                        <strong class="text-gray-900 dark:text-white">{{ profile.allergies if profile and profile.allergies else 'None listed' }}</strong>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-100 dark:border-slate-700 pb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Medications</span>
+                        <strong class="text-gray-900 dark:text-white">{{ profile.medications if profile and profile.medications else 'None listed' }}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 dark:text-gray-400">Organ Donor</span>
+                        <strong class="text-gray-900 dark:text-white">{{ 'Yes' if profile and profile.organ_donor else 'No' }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Leaflet JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    const incidentLat = {{ incident.latitude }};
+    const incidentLon = {{ incident.longitude }};
+    const isIncidentActive = "{{ incident.status }}" === "active";
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const map = L.map('trackMap').setView([incidentLat, incidentLon], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add pulsing marker for active incident
+        const markerColor = isIncidentActive ? '#DC2626' : '#10B981';
+        const pulseHtml = isIncidentActive ? '<div class="pulse-ring absolute inset-0"></div>' : '';
+        
+        const marker = L.marker([incidentLat, incidentLon], {
+            icon: L.divIcon({
+                className: 'custom-track-marker relative',
+                html: `<div class="relative w-8 h-8 flex items-center justify-center">${pulseHtml}<div class="w-4 h-4 rounded-full" style="background: ${markerColor}; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div></div>`,
+                iconSize: [32, 32]
+            })
+        }).addTo(map).bindPopup("<b>Victim Current Location</b>").openPopup();
+    });
+
+    function copyShareUrl() {
+        navigator.clipboard.writeText(window.location.href);
+        alert("✅ Public tracking URL copied to clipboard! Share this with family or responders.");
+    }
+</script>
+{% endblock %}

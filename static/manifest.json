@@ -1,0 +1,26 @@
+{
+    "name": "ROADSoS AI Emergency Platform",
+    "short_name": "ROADSoS",
+    "description": "AI-Powered Emergency Response & Disaster Assistance Platform",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#111827",
+    "theme_color": "#dc2626",
+    "categories": ["health", "emergency", "utilities"],
+    "icons": [
+        {
+            "src": "/static/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/static/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

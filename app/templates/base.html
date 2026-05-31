@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}ROADSoS AI - Emergency Response{% endblock %}</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#DC2626">
+    <meta name="description" content="AI-Powered Emergency Response & Disaster Assistance Platform">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/static/icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <!-- Tailwind CSS (CDN for rapid deployment with custom config) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#DC2626',
+                        'primary-hover': '#B91C1C',
+                        secondary: '#1E293B',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        background: '#F8FAFC',
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-background text-secondary antialiased flex flex-col min-h-screen dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass shadow-sm transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                        <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            <i class="fa-solid fa-truck-medical"></i>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight text-secondary dark:text-white">ROADSoS <span class="text-primary">AI</span></span>
+                    </a>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex md:items-center md:space-x-8">
+                    {% if session %}
+                        <a href="/dashboard" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition px-3 py-2 rounded-md font-medium">Dashboard</a>
+                        <a href="/map" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition px-3 py-2 rounded-md font-medium">Live Map</a>
+                        <a href="/ai-assistant" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition px-3 py-2 rounded-md font-medium">AI Assistant</a>
+                        <div class="relative group">
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-primary dark:text-gray-300 focus:outline-none px-3 py-2 rounded-md font-medium">
+                                <img class="h-8 w-8 rounded-full border-2 border-primary" src="https://ui-avatars.com/api/?name={{ session.user_name }}&background=DC2626&color=fff" alt="User">
+                                <span>{{ session.user_name }}</span>
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </button>
+                            <!-- Dropdown -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100 dark:border-gray-700">
+                                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700"><i class="fa-solid fa-user-injured w-5"></i> Medical Profile</a>
+                                <a href="/reports" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700"><i class="fa-solid fa-file-pdf w-5"></i> Reports</a>
+                                {% if session.is_admin %}
+                                <a href="/admin" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700"><i class="fa-solid fa-shield-halved w-5"></i> Admin Panel</a>
+                                {% endif %}
+                                <hr class="my-1 border-gray-200 dark:border-gray-700">
+                                <a href="/auth/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-slate-700"><i class="fa-solid fa-right-from-bracket w-5"></i> Sign out</a>
+                            </div>
+                        </div>
+                        <a href="/sos" class="bg-primary hover:bg-primary-hover text-white px-5 py-2 rounded-full font-bold shadow-md shadow-red-500/30 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                            <i class="fa-solid fa-bell animate-pulse"></i> SOS
+                        </a>
+                    {% else %}
+                        <a href="/#features" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition font-medium">Features</a>
+                        <a href="/#about" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition font-medium">How it Works</a>
+                        <a href="/auth/login" class="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary font-medium transition">Login</a>
+                        <a href="/auth/register" class="bg-secondary text-white hover:bg-slate-700 px-5 py-2 rounded-full font-medium transition shadow-md">Sign Up</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    {% if session %}
+                    <a href="/sos" class="mr-4 bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md animate-pulse-fast">
+                        <i class="fa-solid fa-bell"></i>
+                    </a>
+                    {% endif %}
+                    <button id="mobile-menu-btn" class="text-gray-600 dark:text-gray-300 hover:text-primary focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-gray-700 absolute w-full shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                {% if session %}
+                    <div class="flex items-center gap-3 p-3 mb-2 border-b border-gray-100 dark:border-gray-700">
+                        <img class="h-10 w-10 rounded-full border border-primary" src="https://ui-avatars.com/api/?name={{ session.user_name }}&background=DC2626&color=fff" alt="User">
+                        <div>
+                            <div class="font-bold text-gray-800 dark:text-white">{{ session.user_name }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Ready for emergency</div>
+                        </div>
+                    </div>
+                    <a href="/dashboard" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700"><i class="fa-solid fa-chart-line w-6 text-center text-primary"></i> Dashboard</a>
+                    <a href="/map" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700"><i class="fa-solid fa-map-location-dot w-6 text-center text-primary"></i> Live Map</a>
+                    <a href="/profile" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700"><i class="fa-solid fa-user-injured w-6 text-center text-primary"></i> Medical Profile</a>
+                    <a href="/ai-assistant" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700"><i class="fa-solid fa-robot w-6 text-center text-primary"></i> AI Assistant</a>
+                    <a href="/reports" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700"><i class="fa-solid fa-file-pdf w-6 text-center text-primary"></i> Reports</a>
+                    <a href="/auth/logout" class="block px-3 py-3 rounded-md text-base font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 mt-4"><i class="fa-solid fa-right-from-bracket w-6 text-center"></i> Sign Out</a>
+                {% else %}
+                    <a href="/#features" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700">Features</a>
+                    <a href="/auth/login" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700">Login</a>
+                    <a href="/auth/register" class="block px-3 py-3 rounded-md text-base font-medium text-primary hover:bg-red-50 dark:hover:bg-red-900/20">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-16">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-secondary text-slate-300 py-12 border-t border-slate-700 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-white font-bold shadow-lg">
+                            <i class="fa-solid fa-truck-medical text-sm"></i>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight text-white">ROADSoS <span class="text-primary">AI</span></span>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-4">
+                        The world's most advanced AI-powered emergency response and disaster assistance platform. 
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-slate-400 hover:text-white transition"><i class="fa-brands fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-slate-400 hover:text-white transition"><i class="fa-brands fa-github text-xl"></i></a>
+                        <a href="#" class="text-slate-400 hover:text-white transition"><i class="fa-brands fa-linkedin text-xl"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Platform</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/#features" class="hover:text-primary transition">Features</a></li>
+                        <li><a href="/map" class="hover:text-primary transition">Live Map</a></li>
+                        <li><a href="/ai-assistant" class="hover:text-primary transition">AI Assistant</a></li>
+                        <li><a href="/sos" class="hover:text-primary transition">SOS Trigger</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/disaster" class="hover:text-primary transition">Disaster Guide</a></li>
+                        <li><a href="#" class="hover:text-primary transition">First Aid Tips</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Help Center</a></li>
+                        <li><a href="#" class="hover:text-primary transition">API Documentation</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Emergency</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-primary">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">National Emergency</div>
+                                <div class="text-white font-bold tracking-wider">112</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white">
+                                <i class="fa-solid fa-truck-medical"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Ambulance</div>
+                                <div class="text-white font-bold tracking-wider">108</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+                <p>&copy; {{ now().year if now is defined else 2025 }} ROADSoS AI. All rights reserved.</p>
+                <div class="mt-4 md:mt-0 space-x-4">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // Mobile menu toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Add scrolled class to navbar
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                nav.classList.add('shadow-md');
+                nav.classList.remove('shadow-sm');
+            } else {
+                nav.classList.add('shadow-sm');
+                nav.classList.remove('shadow-md');
+            }
+        });
+
+        // Setup Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/service-worker.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

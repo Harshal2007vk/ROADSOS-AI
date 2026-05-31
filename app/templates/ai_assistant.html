@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}AI Emergency Assistant - ROADSoS AI{% endblock %}
+
+{% block content %}
+<style>
+    .chat-container {
+        height: calc(100vh - 360px);
+        min-height: 400px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+    }
+    .message {
+        animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #9CA3AF;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+        0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+        30% { opacity: 1; transform: scale(1); }
+    }
+    .voice-recording {
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    .chat-container::-webkit-scrollbar { width: 6px; }
+    .chat-container::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.05); border-radius: 3px; }
+    .chat-container::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 3px; }
+    .dark .chat-container::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+    .dark .chat-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+</style>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Emergency Scenarios -->
+    <div id="scenariosSection" class="mb-6">
+        <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Quick Emergency Scenarios</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <button onclick="selectScenario('cardiac')" class="glass dark:glass-dark rounded-xl p-4 text-center hover:bg-red-50 dark:hover:bg-slate-800 transition transform hover:-translate-y-1">
+                <i class="fas fa-heartbeat text-red-500 text-3xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Cardiac Emergency</p>
+            </button>
+            <button onclick="selectScenario('breathing')" class="glass dark:glass-dark rounded-xl p-4 text-center hover:bg-blue-50 dark:hover:bg-slate-800 transition transform hover:-translate-y-1">
+                <i class="fas fa-lungs text-blue-400 text-3xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Breathing Issues</p>
+            </button>
+            <button onclick="selectScenario('injury')" class="glass dark:glass-dark rounded-xl p-4 text-center hover:bg-yellow-50 dark:hover:bg-slate-800 transition transform hover:-translate-y-1">
+                <i class="fas fa-band-aid text-yellow-500 text-3xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Injury/Bleeding</p>
+            </button>
+            <button onclick="selectScenario('accident')" class="glass dark:glass-dark rounded-xl p-4 text-center hover:bg-orange-50 dark:hover:bg-slate-800 transition transform hover:-translate-y-1">
+                <i class="fas fa-car-crash text-orange-500 text-3xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Car Accident</p>
+            </button>
+            <button onclick="selectScenario('fire')" class="glass dark:glass-dark rounded-xl p-4 text-center hover:bg-red-50 dark:hover:bg-slate-800 transition transform hover:-translate-y-1">
+                <i class="fas fa-fire text-red-600 text-3xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Fire Emergency</p>
+            </button>
+            <button onclick="selectScenario('other')" class="glass dark:glass-dark rounded-xl p-4 text-center hover:bg-purple-50 dark:hover:bg-slate-800 transition transform hover:-translate-y-1">
+                <i class="fas fa-question-circle text-purple-400 text-3xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">Other</p>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="glass dark:glass-dark rounded-2xl p-4 mb-4 shadow-sm border border-gray-200 dark:border-slate-700">
+        <div class="flex justify-between items-center mb-4 border-b border-gray-100 dark:border-slate-700 pb-3">
+            <h2 class="font-bold flex items-center gap-2"><i class="fa-solid fa-robot text-blue-500"></i> AI Assistant</h2>
+            <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-red-500 transition"><i class="fa-solid fa-trash mr-1"></i>Clear</button>
+        </div>
+
+        <div id="chatContainer" class="chat-container space-y-4 pr-2">
+            <!-- Welcome Message -->
+            <div class="message flex items-start space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 text-white">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-gray-100 dark:bg-slate-800 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                        <p class="text-sm text-gray-800 dark:text-gray-200 mb-2">Hello! I'm your AI Emergency Assistant. I'm here to help guide you through emergency situations.</p>
+                        <p class="text-sm text-red-600 dark:text-red-400 font-bold bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">⚠️ For life-threatening emergencies, call 112 immediately.</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">How can I help you today?</p>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1 ml-1">System</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="glass dark:glass-dark rounded-xl p-4 mb-4 shadow-sm border border-gray-200 dark:border-slate-700">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Quick Commands</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="quickAction('cpr')" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition active:scale-95 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-hand-holding-medical mr-1 text-primary"></i>CPR Guide
+            </button>
+            <button onclick="quickAction('heimlich')" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition active:scale-95 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-user-injured mr-1 text-blue-500"></i>Heimlich
+            </button>
+            <button onclick="quickAction('firstaid')" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition active:scale-95 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-kit-medical mr-1 text-green-500"></i>First Aid
+            </button>
+            <button onclick="quickAction('burn')" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition active:scale-95 text-gray-700 dark:text-gray-200">
+                <i class="fas fa-fire-extinguisher mr-1 text-orange-500"></i>Burn Treat
+            </button>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="glass dark:glass-dark rounded-2xl p-4 shadow-lg border border-gray-200 dark:border-slate-700 sticky bottom-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg z-10">
+        <div class="flex items-end space-x-3">
+            <button id="voiceBtn" onclick="toggleVoiceInput()" class="w-12 h-12 bg-gray-100 dark:bg-slate-800 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition flex-shrink-0 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                <i class="fas fa-microphone text-xl"></i>
+            </button>
+            <div class="flex-1">
+                <textarea 
+                    id="messageInput" 
+                    rows="1" 
+                    placeholder="Describe emergency..."
+                    class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    onkeydown="handleKeyPress(event)"
+                ></textarea>
+            </div>
+            <button id="sendBtn" onclick="sendMessage()" class="w-12 h-12 bg-primary hover:bg-primary-hover text-white rounded-xl transition flex-shrink-0 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-red-500/20">
+                <i class="fas fa-paper-plane text-xl"></i>
+            </button>
+        </div>
+        <p class="text-[10px] text-gray-500 mt-2 text-center uppercase tracking-wider font-bold">AI guidance only. Always call 112 for emergencies.</p>
+    </div>
+</div>
+
+<!-- Voice Modal -->
+<div id="voiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-sm mx-4 text-center shadow-2xl">
+        <div class="w-24 h-24 mx-auto mb-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center voice-recording border-4 border-red-500">
+            <i class="fas fa-microphone text-4xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Listening...</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-8">Speak clearly about your emergency</p>
+        <button onclick="stopVoiceInput()" class="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-900 dark:text-white font-bold rounded-xl transition">
+            Stop Recording
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let isRecording = false;
+    let recognition = null;
+    let conversationHistory = []; // to maintain context in frontend if needed
+
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('messageInput').value = transcript;
+            stopVoiceInput();
+            sendMessage();
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            stopVoiceInput();
+            alert('Voice input failed. Please type your message.');
+        };
+    }
+
+    function selectScenario(type) {
+        const scenarios = {
+            cardiac: "I need help with a cardiac emergency. Someone may be having a heart attack.",
+            breathing: "Someone is having trouble breathing. What should I do?",
+            injury: "Someone is injured and bleeding. How do I help?",
+            accident: "I'm at a car accident scene. What are the first steps?",
+            fire: "There's a fire emergency. What should I do?",
+            other: "I need emergency guidance."
+        };
+        document.getElementById('messageInput').value = scenarios[type];
+        document.getElementById('scenariosSection').style.display = 'none';
+        sendMessage();
+    }
+
+    function quickAction(action) {
+        const actions = {
+            cpr: "How do I perform CPR?",
+            heimlich: "How do I perform the Heimlich maneuver?",
+            firstaid: "What are basic first aid steps?",
+            burn: "How do I treat a burn injury?"
+        };
+        document.getElementById('messageInput').value = actions[action];
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        const sendBtn = document.getElementById('sendBtn');
+
+        if (!message) return;
+
+        addMessage(message, 'user');
+        input.value = '';
+        input.style.height = 'auto'; // reset height
+        document.getElementById('scenariosSection').style.display = 'none';
+        
+        sendBtn.disabled = true;
+        showTypingIndicator();
+
+        try {
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: message })
+            });
+
+            removeTypingIndicator();
+            
+            if (response.ok) {
+                const data = await response.json();
+                addMessage(data.response, 'assistant');
+            } else {
+                throw new Error('Server error');
+            }
+        } catch (error) {
+            removeTypingIndicator();
+            addMessage(getOfflineResponse(message), 'assistant', true);
+        } finally {
+            sendBtn.disabled = false;
+        }
+    }
+
+    function addMessage(text, sender, isOffline = false) {
+        const chatContainer = document.getElementById('chatContainer');
+        const div = document.createElement('div');
+        div.className = 'message flex items-start space-x-3 mb-4';
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Simple markdown to HTML
+        let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        htmlText = htmlText.replace(/\n/g, '<br>');
+
+        if (sender === 'user') {
+            div.innerHTML = `
+                <div class="flex-1 flex justify-end">
+                    <div class="max-w-[80%]">
+                        <div class="bg-primary text-white rounded-2xl rounded-tr-none p-3 shadow-md">
+                            <p class="text-sm">${htmlText}</p>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1 text-right pr-1">${time}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            const badge = isOffline ? '<span class="inline-block bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase mb-2">Offline Cache</span><br>' : '';
+            div.innerHTML = `
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 text-white shadow-sm mt-1">
+                    <i class="fas fa-robot text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl rounded-tl-none p-4 shadow-sm max-w-[90%] text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
+                        ${badge}${htmlText}
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 ml-1">${time}</p>
+                </div>
+            `;
+        }
+
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        saveChatHistory();
+    }
+
+    function showTypingIndicator() {
+        const chatContainer = document.getElementById('chatContainer');
+        const div = document.createElement('div');
+        div.id = 'typingIndicator';
+        div.className = 'message flex items-start space-x-3 mb-4';
+        div.innerHTML = `
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 text-white shadow-sm mt-1">
+                <i class="fas fa-robot text-sm"></i>
+            </div>
+            <div class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl rounded-tl-none p-4 shadow-sm w-20">
+                <div class="typing-indicator justify-center">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const ind = document.getElementById('typingIndicator');
+        if (ind) ind.remove();
+    }
+
+    function toggleVoiceInput() {
+        if (!recognition) return alert('Voice input not supported on this device');
+        isRecording ? stopVoiceInput() : startVoiceInput();
+    }
+
+    function startVoiceInput() {
+        document.getElementById('voiceModal').classList.remove('hidden');
+        isRecording = true;
+        recognition.start();
+    }
+
+    function stopVoiceInput() {
+        document.getElementById('voiceModal').classList.add('hidden');
+        isRecording = false;
+        if (recognition) recognition.stop();
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function clearChat() {
+        if (confirm('Clear chat history?')) {
+            localStorage.removeItem('chat_history');
+            location.reload();
+        }
+    }
+
+    function saveChatHistory() {
+        localStorage.setItem('chat_history', document.getElementById('chatContainer').innerHTML);
+    }
+
+    function getOfflineResponse(msg) {
+        msg = msg.toLowerCase();
+        if (msg.includes('cpr') || msg.includes('heart')) return "**CALL 112 IMMEDIATELY**\n\nCPR Steps:\n1. Check if person is responsive\n2. Call emergency services\n3. Place heel of hand on center of chest\n4. Compress 2 inches deep, 100-120 per minute\n5. Push hard and fast!";
+        if (msg.includes('bleed')) return "**Bleeding Control:**\n1. Apply direct pressure with clean cloth\n2. Keep pressure for 10 minutes\n3. Don't remove soaked cloth, add more\n4. Elevate if possible\n\nCall 112 if severe.";
+        if (msg.includes('chok')) return "**Heimlich Maneuver:**\n1. Stand behind person\n2. Make fist above navel\n3. Grasp fist with other hand\n4. Give quick, upward thrusts";
+        return "I am currently offline. **Please call 112 for immediate emergency assistance.**";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('chat_history');
+        if (saved) {
+            document.getElementById('chatContainer').innerHTML = saved;
+            document.getElementById('scenariosSection').style.display = 'none';
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+        }
+        
+        const ta = document.getElementById('messageInput');
+        ta.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    });
+</script>
+
+{% set show_nav = true %}
+{% endblock %}

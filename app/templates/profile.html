@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Profile - ROADSoS AI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+    
+    <!-- Profile Header -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
+                <i class="fa-solid fa-address-card text-primary"></i> Medical Profile
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 font-medium mt-1">Manage your emergency medical information and QR code.</p>
+        </div>
+        <button onclick="toggleEditMode()" id="editBtn" class="mt-4 md:mt-0 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-md flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square"></i> <span>Edit Profile</span>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Left Column: QR Code & Quick Info -->
+        <div class="space-y-6">
+            <!-- QR Code Card -->
+            <div class="glass dark:glass-dark rounded-3xl p-6 text-center shadow-lg border border-gray-200 dark:border-slate-700 relative overflow-hidden">
+                <!-- Top decoration -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-red-400"></div>
+                
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><i class="fa-solid fa-qrcode text-primary"></i> Emergency QR</h3>
+                
+                <div class="bg-white p-4 rounded-2xl inline-block shadow-sm mb-4 mx-auto border border-gray-100">
+                    <!-- Placeholder QR, backend can generate an actual base64 image here -->
+                    {% if user.medical_profile and user.medical_profile.qr_code_path %}
+                        <img src="{{ user.medical_profile.qr_code_path }}" alt="Emergency QR Code" class="w-48 h-48 object-contain">
+                    {% else %}
+                        <div class="w-48 h-48 bg-gray-100 flex items-center justify-center text-gray-400 rounded-xl">
+                            <i class="fa-solid fa-qrcode text-6xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium px-2">First responders can scan this code to view your vital medical details instantly.</p>
+                
+                <button onclick="generateQR()" class="w-full mt-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 font-bold rounded-xl transition border border-gray-300 dark:border-slate-600">
+                    <i class="fa-solid fa-rotate mr-1"></i> Regenerate QR
+                </button>
+            </div>
+            
+            <!-- Lock Screen Widget Info -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-mobile-screen text-blue-500 text-xl mt-1"></i>
+                    <div>
+                        <h4 class="font-bold text-blue-900 dark:text-blue-100 text-sm">Lock Screen Access</h4>
+                        <p class="text-xs text-blue-800 dark:text-blue-200 mt-1">Add your QR code to your phone's lock screen for immediate access during emergencies.</p>
+                        <button class="mt-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">View Instructions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Medical Details Form -->
+        <div class="md:col-span-2">
+            <form id="medicalProfileForm" class="glass dark:glass-dark rounded-3xl p-6 md:p-8 shadow-sm border border-gray-200 dark:border-slate-700 space-y-6">
+                
+                <!-- Personal Info -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-slate-700 pb-2">
+                        <i class="fa-solid fa-user-injured text-gray-400 mr-2"></i> Basic Information
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Blood Type</label>
+                            <select id="bloodType" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition" disabled>
+                                <option value="" selected disabled>Select...</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Date of Birth</label>
+                            <input type="date" id="dob" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Conditions & Allergies -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-slate-700 pb-2">
+                        <i class="fa-solid fa-notes-medical text-gray-400 mr-2"></i> Medical Details
+                    </h3>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Allergies (comma separated)</label>
+                        <textarea id="allergies" rows="2" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none" placeholder="e.g. Peanuts, Penicillin, Bee stings" disabled></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Chronic Conditions / Medical History</label>
+                        <textarea id="conditions" rows="3" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none" placeholder="e.g. Asthma, Type 1 Diabetes, Hypertension" disabled></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Current Medications</label>
+                        <textarea id="medications" rows="2" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none" placeholder="e.g. Albuterol inhaler, Metformin" disabled></textarea>
+                    </div>
+                </div>
+
+                <!-- Emergency Contacts -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-2">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                            <i class="fa-solid fa-users text-gray-400 mr-2"></i> Emergency Contacts
+                        </h3>
+                        <button type="button" onclick="addContactField()" id="addContactBtn" class="text-sm font-bold text-blue-600 hover:text-blue-700 hidden">
+                            <i class="fa-solid fa-plus mr-1"></i> Add
+                        </button>
+                    </div>
+                    
+                    <div id="contactsContainer" class="space-y-3">
+                        <!-- Contacts will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Save Actions (Hidden by default) -->
+                <div id="saveActions" class="hidden pt-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-end gap-3">
+                    <button type="button" onclick="cancelEdit()" class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-bold rounded-xl transition">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="saveProfile()" class="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition shadow-md">
+                        Save Changes
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let isEditing = false;
+    
+    // Sample profile data (to be replaced by backend Jinja/API)
+    let profileData = {
+        blood_type: '{{ user.medical_profile.blood_type if user.medical_profile else "" }}',
+        allergies: '{{ user.medical_profile.allergies if user.medical_profile else "" }}',
+        conditions: '{{ user.medical_profile.medical_conditions if user.medical_profile else "" }}',
+        medications: '{{ user.medical_profile.medications if user.medical_profile else "" }}',
+        contacts: [] // populated by API or Jinja
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProfileData();
+    });
+
+    function loadProfileData() {
+        // Set fields from data
+        if(profileData.blood_type) document.getElementById('bloodType').value = profileData.blood_type;
+        document.getElementById('allergies').value = profileData.allergies;
+        document.getElementById('conditions').value = profileData.conditions;
+        document.getElementById('medications').value = profileData.medications;
+        
+        const container = document.getElementById('contactsContainer');
+        container.innerHTML = '';
+        
+        if (profileData.contacts.length === 0) {
+            // Default empty contact
+            addContactField('', '', '');
+        } else {
+            profileData.contacts.forEach(c => addContactField(c.name, c.phone, c.relation));
+        }
+    }
+
+    function addContactField(name = '', phone = '', relation = '') {
+        const container = document.getElementById('contactsContainer');
+        const count = container.children.length;
+        
+        const div = document.createElement('div');
+        div.className = 'grid grid-cols-1 md:grid-cols-3 gap-2 bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700 relative group contact-row';
+        
+        div.innerHTML = `
+            <div>
+                <input type="text" placeholder="Name" value="${name}" class="contact-name w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-primary disabled:opacity-75" disabled>
+            </div>
+            <div>
+                <input type="tel" placeholder="Phone" value="${phone}" class="contact-phone w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-primary disabled:opacity-75" disabled>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="text" placeholder="Relation (e.g. Spouse)" value="${relation}" class="contact-relation flex-1 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-primary disabled:opacity-75" disabled>
+                <button type="button" onclick="this.closest('.contact-row').remove()" class="text-red-500 hover:text-red-700 p-2 opacity-0 group-hover:opacity-100 transition hidden delete-contact-btn">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(div);
+        
+        if (isEditing) {
+            div.querySelectorAll('input').forEach(i => i.disabled = false);
+            div.querySelector('.delete-contact-btn').classList.remove('hidden');
+        }
+    }
+
+    function toggleEditMode() {
+        isEditing = true;
+        const form = document.getElementById('medicalProfileForm');
+        
+        // Enable inputs
+        form.querySelectorAll('input, select, textarea').forEach(el => el.disabled = false);
+        
+        // Show hidden buttons
+        document.getElementById('saveActions').classList.remove('hidden');
+        document.getElementById('addContactBtn').classList.remove('hidden');
+        
+        // Show delete contact buttons
+        document.querySelectorAll('.delete-contact-btn').forEach(btn => btn.classList.remove('hidden', 'opacity-0'));
+        
+        // Update main edit button
+        const editBtn = document.getElementById('editBtn');
+        editBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span>Editing</span>';
+        editBtn.classList.replace('bg-blue-600', 'bg-gray-400');
+        editBtn.disabled = true;
+    }
+
+    function cancelEdit() {
+        isEditing = false;
+        
+        // Reload original data
+        loadProfileData();
+        
+        // Disable inputs
+        const form = document.getElementById('medicalProfileForm');
+        form.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+        
+        // Hide buttons
+        document.getElementById('saveActions').classList.add('hidden');
+        document.getElementById('addContactBtn').classList.add('hidden');
+        document.querySelectorAll('.delete-contact-btn').forEach(btn => btn.classList.add('hidden'));
+        
+        // Reset main edit button
+        const editBtn = document.getElementById('editBtn');
+        editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span>Edit Profile</span>';
+        editBtn.classList.replace('bg-gray-400', 'bg-blue-600');
+        editBtn.disabled = false;
+    }
+
+    async function saveProfile() {
+        const btn = document.querySelector('#saveActions button.bg-green-600');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving...';
+        btn.disabled = true;
+        
+        // Gather contacts
+        const contacts = [];
+        document.querySelectorAll('.contact-row').forEach(row => {
+            const name = row.querySelector('.contact-name').value.trim();
+            const phone = row.querySelector('.contact-phone').value.trim();
+            const relation = row.querySelector('.contact-relation').value.trim();
+            if (name || phone) {
+                contacts.push({ name, phone, relation });
+            }
+        });
+
+        const data = {
+            blood_type: document.getElementById('bloodType').value,
+            allergies: document.getElementById('allergies').value,
+            medical_conditions: document.getElementById('conditions').value,
+            medications: document.getElementById('medications').value,
+            emergency_contacts: contacts
+        };
+
+        try {
+            const res = await fetch('/api/users/me/medical', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                // Update local profileData cache
+                profileData = {
+                    blood_type: data.blood_type,
+                    allergies: data.allergies,
+                    conditions: data.medical_conditions,
+                    medications: data.medications,
+                    contacts: data.emergency_contacts
+                };
+                
+                // Show success, wait 1 sec, then cancelEdit to lock UI
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Saved!';
+                btn.classList.replace('bg-green-600', 'bg-green-500');
+                
+                setTimeout(() => {
+                    cancelEdit();
+                    generateQR(); // Regenerate QR with new data
+                }, 1000);
+            } else {
+                throw new Error("Failed to save profile");
+            }
+        } catch (err) {
+            console.error(err);
+            btn.innerHTML = 'Save Changes';
+            btn.disabled = false;
+            alert("Error saving profile. Check connection.");
+        }
+    }
+
+    async function generateQR() {
+        try {
+            const res = await fetch('/api/users/me/medical/qr', { method: 'POST' });
+            if (res.ok) {
+                const data = await res.json();
+                // update image src (e.g. data:image/png;base64,...)
+                // Currently just reloading the page to fetch the new QR code if generated on backend
+                window.location.reload(); 
+            }
+        } catch (e) {
+            console.error("Failed to generate QR", e);
+        }
+    }
+</script>
+
+{% set show_nav = true %}
+{% endblock %}

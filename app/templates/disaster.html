@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Disaster & Alert Dashboard - ROADSoS AI{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
+                <i class="fa-solid fa-cloud-bolt text-primary"></i> Disaster Alerts
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 font-medium mt-1">Real-time severe weather warnings, shelter locations, and safe evacuation routes.</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 font-bold text-sm">
+            <span class="flex h-3 w-3 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
+            LIVE RADAR ACTIVE
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <!-- Active Alerts Feed -->
+        <div class="lg:col-span-1 space-y-4">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Active Warnings</h2>
+            
+            <!-- Alert Card: Critical -->
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer relative overflow-hidden group">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm">
+                        <i class="fa-solid fa-house-flood-water text-lg"></i> Flash Flood Warning
+                    </div>
+                    <span class="text-[10px] bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 px-2 py-0.5 rounded font-bold uppercase">Critical</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-1">Downtown & River District</h3>
+                <p class="text-xs text-red-800 dark:text-red-200 mb-3 line-clamp-2">Severe flooding expected. Seek higher ground immediately. Do not attempt to cross flooded roads.</p>
+                <div class="flex items-center text-xs text-gray-500 font-mono">
+                    <i class="fa-regular fa-clock mr-1"></i> Expires in 2h 45m
+                </div>
+            </div>
+            
+            <!-- Alert Card: High -->
+            <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-bold text-sm">
+                        <i class="fa-solid fa-hurricane text-lg"></i> Cyclone Watch
+                    </div>
+                    <span class="text-[10px] bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded font-bold uppercase">High Risk</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-1">Coastal Regions</h3>
+                <p class="text-xs text-orange-800 dark:text-orange-200 mb-3 line-clamp-2">Category 3 cyclone approaching. Secure loose objects and prepare emergency kits. Evacuation orders may follow.</p>
+                <div class="flex items-center text-xs text-gray-500 font-mono">
+                    <i class="fa-regular fa-clock mr-1"></i> Update in 15m
+                </div>
+            </div>
+            
+            <!-- Alert Card: Medium -->
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition cursor-pointer relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 font-bold text-sm">
+                        <i class="fa-solid fa-hill-rockslide text-lg"></i> Landslide Advisory
+                    </div>
+                    <span class="text-[10px] bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 px-2 py-0.5 rounded font-bold uppercase">Advisory</span>
+                </div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-1">Northern Hills Route 9</h3>
+                <p class="text-xs text-yellow-800 dark:text-yellow-200 mb-3 line-clamp-2">Recent heavy rains have destabilized slopes. Exercise extreme caution driving through mountain passes.</p>
+                <div class="flex items-center text-xs text-gray-500 font-mono">
+                    <i class="fa-regular fa-clock mr-1"></i> Active until tomorrow
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Disaster Map & Resources -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Interactive Map Panel -->
+            <div class="glass dark:glass-dark rounded-3xl p-4 shadow-sm border border-gray-200 dark:border-slate-700">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <h2 class="font-bold flex items-center gap-2"><i class="fa-solid fa-map text-blue-500"></i> Evacuation & Shelter Map</h2>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-bold border border-blue-200 dark:border-blue-800"><i class="fa-solid fa-route"></i> Safe Routes</button>
+                        <button class="px-3 py-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-bold border border-gray-200 dark:border-slate-700"><i class="fa-solid fa-campground"></i> Shelters</button>
+                    </div>
+                </div>
+                <div id="disasterMap" class="h-80 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 relative z-10">
+                    <!-- Map placeholder, Leaflet handles the rest -->
+                </div>
+            </div>
+
+            <!-- Emergency Shelters List -->
+            <div class="glass dark:glass-dark rounded-3xl p-6 shadow-sm border border-gray-200 dark:border-slate-700">
+                <h2 class="font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-tents text-green-500"></i> Nearest Active Shelters</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Shelter 1 -->
+                    <div class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl p-4 flex items-start gap-4 hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 flex-shrink-0">
+                            <i class="fa-solid fa-school text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white">Central High School Gym</h4>
+                            <p class="text-xs text-gray-500 mb-2">1.2 km • Safe Route Available</p>
+                            <div class="flex items-center gap-3">
+                                <span class="text-[10px] bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded font-bold flex items-center gap-1"><i class="fa-solid fa-bed"></i> 45/200 Beds</span>
+                                <span class="text-[10px] bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded font-bold flex items-center gap-1"><i class="fa-solid fa-kit-medical"></i> First Aid</span>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition">
+                            <i class="fa-solid fa-directions"></i>
+                        </button>
+                    </div>
+
+                    <!-- Shelter 2 -->
+                    <div class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl p-4 flex items-start gap-4 hover:shadow-md transition">
+                        <div class="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 flex-shrink-0">
+                            <i class="fa-solid fa-building-user text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white">Community Rec Center</h4>
+                            <p class="text-xs text-gray-500 mb-2">3.5 km • Take Highway 4</p>
+                            <div class="flex items-center gap-3">
+                                <span class="text-[10px] bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded font-bold flex items-center gap-1"><i class="fa-solid fa-bed"></i> 480/500 Beds (Full soon)</span>
+                            </div>
+                        </div>
+                        <button class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition">
+                            <i class="fa-solid fa-directions"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize Demo Disaster Map
+        const map = L.map('disasterMap').setView([37.7749, -122.4194], 13);
+        
+        // Dark mode friendly map tiles
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const tileUrl = isDarkMode ? 
+            'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png' :
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+        L.tileLayer(tileUrl, {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Demo Disaster Zones
+        
+        // Flood Zone Polygon (Red overlay)
+        const floodZone = [
+            [37.78, -122.42],
+            [37.78, -122.40],
+            [37.77, -122.39],
+            [37.76, -122.41],
+            [37.77, -122.42]
+        ];
+        L.polygon(floodZone, {color: '#DC2626', fillColor: '#DC2626', fillOpacity: 0.3, weight: 2})
+         .addTo(map).bindPopup('<b>Danger:</b> Active Flood Zone');
+
+        // Safe Shelters
+        const shelterIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div class="w-8 h-8 bg-green-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white"><i class="fa-solid fa-tents text-sm"></i></div>',
+            iconSize: [32, 32]
+        });
+
+        L.marker([37.765, -122.43], {icon: shelterIcon}).addTo(map).bindPopup('Central High School Gym (Safe)');
+        L.marker([37.785, -122.44], {icon: shelterIcon}).addTo(map).bindPopup('Community Rec Center (Safe)');
+
+        // User Location (Demo)
+        L.marker([37.7749, -122.4194], {
+            icon: L.divIcon({
+                className: 'custom-marker',
+                html: '<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>',
+                iconSize: [16, 16]
+            })
+        }).addTo(map).bindPopup('You are here');
+
+        // Safe Route (Polyline)
+        const safeRoute = [
+            [37.7749, -122.4194], // user
+            [37.7749, -122.425],
+            [37.765, -122.425],
+            [37.765, -122.43] // shelter
+        ];
+        
+        // Add animated dashed line for route
+        L.polyline(safeRoute, {
+            color: '#3B82F6', 
+            weight: 4, 
+            dashArray: '10, 10',
+            className: 'route-line-anim'
+        }).addTo(map).bindPopup('Suggested Safe Route');
+    });
+</script>
+
+<style>
+    .route-line-anim {
+        animation: dash 20s linear infinite;
+    }
+    @keyframes dash {
+        to {
+            stroke-dashoffset: -1000;
+        }
+    }
+</style>
+{% set show_nav = true %}
+{% endblock %}
