@@ -152,6 +152,66 @@
                     <div class="flex justify-between"><span class="text-gray-400">Incident ID</span><span class="font-mono text-xs font-semibold dark:text-gray-200">{{ incident.incident_id }}</span></div>
                 </div>
             </div>
+
+            <!-- Black Box Event Timeline -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 relative overflow-hidden mt-6">
+                <h2 class="text-base font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-primary"></i> Chronological Event Log
+                </h2>
+                
+                <div class="relative pl-8 space-y-6">
+                    <!-- Vertical Timeline Line -->
+                    <div class="timeline-line"></div>
+                    
+                    <!-- Event 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-[27px] w-5 h-5 rounded-full bg-slate-400 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[9px] text-white">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </div>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 font-mono">0.0s since trigger</p>
+                        <p class="text-xs font-bold text-gray-900 dark:text-white">GPS Emergency Signal Received</p>
+                    </div>
+                    
+                    <!-- Event 2 (deceleration) -->
+                    {% if incident.speed_at_incident %}
+                    <div class="relative">
+                        <div class="absolute -left-[27px] w-5 h-5 rounded-full bg-orange-500 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[9px] text-white">
+                            <i class="fa-solid fa-gauge-high"></i>
+                        </div>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 font-mono">+1.2s since trigger</p>
+                        <p class="text-xs font-bold text-gray-900 dark:text-white">Sudden Deceleration at {{ "%.1f"|format(incident.speed_at_incident) }} km/h</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Event 3 (impact) -->
+                    <div class="relative">
+                        <div class="absolute -left-[27px] w-5 h-5 rounded-full bg-red-600 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[9px] text-white timeline-pulse">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 font-mono">+2.5s since trigger</p>
+                        <p class="text-xs font-bold text-gray-900 dark:text-white">Impact Registered (High G-Force)</p>
+                    </div>
+                    
+                    <!-- Event 4 (AI triage) -->
+                    <div class="relative">
+                        <div class="absolute -left-[27px] w-5 h-5 rounded-full bg-blue-500 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[9px] text-white">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 font-mono">+5.0s since trigger</p>
+                        <p class="text-xs font-bold text-gray-900 dark:text-white">AI Severity Triage: {{ incident.severity_level | upper }}</p>
+                    </div>
+                    
+                    <!-- Event 5 (Resource Route) -->
+                    <div class="relative">
+                        <div class="absolute -left-[27px] w-5 h-5 rounded-full bg-green-500 border-2 border-white dark:border-slate-800 flex items-center justify-center text-[9px] text-white">
+                            <i class="fa-solid fa-hospital"></i>
+                        </div>
+                        <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 font-mono">+7.5s since trigger</p>
+                        <p class="text-xs font-bold text-gray-900 dark:text-white">Route Traced & Contacts Dispatched</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

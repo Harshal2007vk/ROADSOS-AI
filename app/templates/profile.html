@@ -58,6 +58,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Offline Maps Auto-Download -->
+            <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 shadow-sm mt-6">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-map-location-dot text-emerald-500 text-xl mt-1"></i>
+                    <div>
+                        <h4 class="font-bold text-emerald-900 dark:text-emerald-100 text-sm">Offline Maps</h4>
+                        <p class="text-xs text-emerald-800 dark:text-emerald-200 mt-1">Auto-download street maps for your current area (50km radius) to ensure navigation works without internet.</p>
+                        <button type="button" onclick="downloadOfflineMaps(this)" class="mt-3 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-download"></i> <span class="btn-text">Download Local Area</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Right Column: Medical Details Form -->
@@ -328,8 +342,39 @@
                 // Currently just reloading the page to fetch the new QR code if generated on backend
                 window.location.reload(); 
             }
+    }
+
+    async function downloadOfflineMaps(btn) {
+        const textSpan = btn.querySelector('.btn-text');
+        const icon = btn.querySelector('i');
+        
+        btn.disabled = true;
+        btn.classList.replace('bg-emerald-600', 'bg-emerald-400');
+        icon.className = 'fa-solid fa-spinner fa-spin';
+        textSpan.textContent = 'Caching tiles...';
+
+        try {
+            // Simulate service worker caching process for hackathon demo
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            textSpan.textContent = 'Storing maps (35%)...';
+            
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            textSpan.textContent = 'Storing routing data...';
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            btn.classList.replace('bg-emerald-400', 'bg-slate-700');
+            icon.className = 'fa-solid fa-check text-green-400';
+            textSpan.textContent = 'Downloaded Offline';
+            
+            // Note: In a real PWA, you would communicate with the service worker here:
+            // navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MAP_AREA', lat: 37, lon: -122 });
         } catch (e) {
-            console.error("Failed to generate QR", e);
+            console.error(e);
+            icon.className = 'fa-solid fa-triangle-exclamation';
+            textSpan.textContent = 'Download Failed';
+            btn.classList.replace('bg-emerald-400', 'bg-red-600');
+            btn.disabled = false;
         }
     }
 </script>

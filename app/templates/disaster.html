@@ -19,6 +19,62 @@
         </div>
     </div>
 
+    <!-- BIMSTEC Multi-National Switcher Panel -->
+    <div class="glass dark:glass-dark rounded-3xl p-6 mb-8 border border-primary/20 bg-gradient-to-r from-red-650/5 to-blue-650/5 shadow-sm">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h2 class="font-extrabold text-lg flex items-center gap-2 text-gray-900 dark:text-white">
+                <i class="fa-solid fa-earth-asia text-primary"></i> BIMSTEC Regional Emergency Alliance
+            </h2>
+            <span class="text-xs font-bold text-gray-500 bg-gray-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-gray-200 dark:border-slate-700">Cross-Border Disaster Hub</span>
+        </div>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mb-6">
+            Switch between member states to simulate centralized disaster alerts, localized shelters, safe evacuation coordinates, and direct emergency hotline connectivity.
+        </p>
+        
+        <!-- Tabs Grid -->
+        <div class="grid grid-cols-3 sm:grid-cols-7 gap-2" id="bimstec-tabs">
+            <button onclick="switchBimstecCountry('IN')" id="tab-IN" class="px-3 py-2 bg-primary text-white font-bold rounded-xl text-xs transition active:scale-95 border border-transparent shadow-sm">
+                🇮🇳 India
+            </button>
+            <button onclick="switchBimstecCountry('BD')" id="tab-BD" class="px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition active:scale-95 border border-gray-200 dark:border-slate-700">
+                🇧🇩 Bangladesh
+            </button>
+            <button onclick="switchBimstecCountry('NP')" id="tab-NP" class="px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition active:scale-95 border border-gray-200 dark:border-slate-700">
+                🇳🇵 Nepal
+            </button>
+            <button onclick="switchBimstecCountry('BT')" id="tab-BT" class="px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition active:scale-95 border border-gray-200 dark:border-slate-700">
+                🇧🇹 Bhutan
+            </button>
+            <button onclick="switchBimstecCountry('LK')" id="tab-LK" class="px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition active:scale-95 border border-gray-200 dark:border-slate-700">
+                🇱🇰 Sri Lanka
+            </button>
+            <button onclick="switchBimstecCountry('MM')" id="tab-MM" class="px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition active:scale-95 border border-gray-200 dark:border-slate-700">
+                🇲🇲 Myanmar
+            </button>
+            <button onclick="switchBimstecCountry('TH')" id="tab-TH" class="px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition active:scale-95 border border-gray-200 dark:border-slate-700">
+                🇹🇭 Thailand
+            </button>
+        </div>
+
+        <!-- Local Info Card -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100 dark:border-slate-700/50" id="bimstec-info-grid">
+            <div class="bg-gray-50 dark:bg-slate-800/40 p-4 rounded-xl text-center border border-gray-100 dark:border-slate-700/50">
+                <p class="text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1">National Emergency</p>
+                <a href="tel:112" id="bimstec-help-nat" class="font-extrabold text-lg text-gray-900 dark:text-white hover:text-primary transition">112</a>
+            </div>
+            <div class="bg-gray-50 dark:bg-slate-800/40 p-4 rounded-xl text-center border border-gray-100 dark:border-slate-700/50">
+                <p class="text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1">Disaster Management</p>
+                <a href="tel:1078" id="bimstec-help-dis" class="font-extrabold text-lg text-gray-900 dark:text-white hover:text-primary transition">1078</a>
+            </div>
+            <div class="bg-gray-50 dark:bg-slate-800/40 p-4 rounded-xl text-center border border-gray-100 dark:border-slate-700/50 flex items-center justify-center">
+                <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5" id="bimstec-active-alerts-status">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse animate-duration-1000"></span>
+                    2 Safe Shelters Operational
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
         <!-- Active Alerts Feed -->
@@ -146,69 +202,267 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
+<script>
+    const BIMSTEC_COUNTRIES = {
+        'IN': {
+            name: "India",
+            capital: [28.6139, 77.2090],
+            nat_help: "112",
+            dis_help: "1078",
+            shelters: 5,
+            shelters_list: [
+                { name: "Delhi Sports Complex Shelter", lat: 28.625, lon: 77.220, beds: "120/500", type: "school" },
+                { name: "Red Cross Emergency Center", lat: 28.605, lon: 77.195, beds: "45/200", type: "building" }
+            ],
+            danger_polygon: [
+                [28.63, 77.21],
+                [28.63, 77.23],
+                [28.61, 77.24],
+                [28.60, 77.21]
+            ],
+            safe_route: [
+                [28.6139, 77.2090],
+                [28.6139, 77.220],
+                [28.625, 77.220]
+            ]
+        },
+        'BD': {
+            name: "Bangladesh",
+            capital: [23.8103, 90.4125],
+            nat_help: "999",
+            dis_help: "1090",
+            shelters: 8,
+            shelters_list: [
+                { name: "Dhaka Stadium Cyclone Shelter", lat: 23.820, lon: 90.420, beds: "350/1000", type: "school" },
+                { name: "Mirpur Relief Center", lat: 23.800, lon: 90.400, beds: "90/300", type: "building" }
+            ],
+            danger_polygon: [
+                [23.83, 90.41],
+                [23.83, 90.43],
+                [23.81, 90.44],
+                [23.80, 90.41]
+            ],
+            safe_route: [
+                [23.8103, 90.4125],
+                [23.8103, 90.420],
+                [23.820, 90.420]
+            ]
+        },
+        'NP': {
+            name: "Nepal",
+            capital: [27.7172, 85.3240],
+            nat_help: "100",
+            dis_help: "1155",
+            shelters: 3,
+            shelters_list: [
+                { name: "Kathmandu Valley School Shelter", lat: 27.725, lon: 85.335, beds: "80/150", type: "school" },
+                { name: "Lalitpur Relief Base", lat: 27.705, lon: 85.315, beds: "120/400", type: "building" }
+            ],
+            danger_polygon: [
+                [27.73, 85.32],
+                [27.73, 85.34],
+                [27.71, 85.35],
+                [27.70, 85.32]
+            ],
+            safe_route: [
+                [27.7172, 85.3240],
+                [27.7172, 85.335],
+                [27.725, 85.335]
+            ]
+        },
+        'BT': {
+            name: "Bhutan",
+            capital: [27.4728, 89.6373],
+            nat_help: "112",
+            dis_help: "211",
+            shelters: 2,
+            shelters_list: [
+                { name: "Thimphu Community Gym", lat: 27.480, lon: 89.645, beds: "55/100", type: "school" },
+                { name: "Dechencholing Safe Camp", lat: 27.465, lon: 89.625, beds: "20/150", type: "building" }
+            ],
+            danger_polygon: [
+                [27.49, 89.63],
+                [27.49, 89.65],
+                [27.47, 89.66],
+                [27.46, 89.63]
+            ],
+            safe_route: [
+                [27.4728, 89.6373],
+                [27.4728, 89.645],
+                [27.480, 89.645]
+            ]
+        },
+        'LK': {
+            name: "Sri Lanka",
+            capital: [6.9271, 79.8612],
+            nat_help: "119",
+            dis_help: "117",
+            shelters: 4,
+            shelters_list: [
+                { name: "Colombo Vihara Relief Shelter", lat: 6.935, lon: 79.870, beds: "220/500", type: "school" },
+                { name: "Galle Face Safe Camp", lat: 6.915, lon: 79.850, beds: "110/300", type: "building" }
+            ],
+            danger_polygon: [
+                [6.94, 79.86],
+                [6.94, 79.88],
+                [6.92, 79.89],
+                [6.91, 79.86]
+            ],
+            safe_route: [
+                [6.9271, 79.8612],
+                [6.9271, 79.870],
+                [6.935, 79.870]
+            ]
+        },
+        'MM': {
+            name: "Myanmar",
+            capital: [16.8661, 96.1951],
+            nat_help: "199",
+            dis_help: "115",
+            shelters: 3,
+            shelters_list: [
+                { name: "Yangon Town Hall Shelter", lat: 16.875, lon: 96.205, beds: "180/400", type: "school" },
+                { name: "Insein Safe Base", lat: 16.855, lon: 96.185, beds: "45/200", type: "building" }
+            ],
+            danger_polygon: [
+                [16.88, 96.19],
+                [16.88, 96.21],
+                [16.86, 96.22],
+                [16.85, 96.19]
+            ],
+            safe_route: [
+                [16.8661, 96.1951],
+                [16.8661, 96.205],
+                [16.875, 96.205]
+            ]
+        },
+        'TH': {
+            name: "Thailand",
+            capital: [13.7563, 100.5018],
+            nat_help: "191",
+            dis_help: "1784",
+            shelters: 6,
+            shelters_list: [
+                { name: "Bangkok Youth Center Gym", lat: 13.765, lon: 100.510, beds: "410/800", type: "school" },
+                { name: "Sanam Luang Safe Station", lat: 13.745, lon: 100.490, beds: "95/300", type: "building" }
+            ],
+            danger_polygon: [
+                [13.77, 100.50],
+                [13.77, 100.52],
+                [13.75, 100.53],
+                [13.74, 100.50]
+            ],
+            safe_route: [
+                [13.7563, 100.5018],
+                [13.7563, 100.510],
+                [13.765, 100.510]
+            ]
+        }
+    };
+
+    let disasterMap = null;
+    let activePolygon = null;
+    let activeRouteLine = null;
+    let mapMarkers = [];
+
     document.addEventListener('DOMContentLoaded', () => {
-        // Initialize Demo Disaster Map
-        const map = L.map('disasterMap').setView([37.7749, -122.4194], 13);
-        
-        // Dark mode friendly map tiles
+        initDisasterMap();
+        switchBimstecCountry('IN'); // Default to India on load
+    });
+
+    function initDisasterMap() {
         const isDarkMode = document.documentElement.classList.contains('dark');
         const tileUrl = isDarkMode ? 
             'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png' :
             'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
+        disasterMap = L.map('disasterMap').setView([28.6139, 77.2090], 11);
         L.tileLayer(tileUrl, {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 19
-        }).addTo(map);
+        }).addTo(disasterMap);
+    }
 
-        // Demo Disaster Zones
-        
-        // Flood Zone Polygon (Red overlay)
-        const floodZone = [
-            [37.78, -122.42],
-            [37.78, -122.40],
-            [37.77, -122.39],
-            [37.76, -122.41],
-            [37.77, -122.42]
-        ];
-        L.polygon(floodZone, {color: '#DC2626', fillColor: '#DC2626', fillOpacity: 0.3, weight: 2})
-         .addTo(map).bindPopup('<b>Danger:</b> Active Flood Zone');
+    function switchBimstecCountry(code) {
+        const data = BIMSTEC_COUNTRIES[code];
+        if (!data || !disasterMap) return;
 
-        // Safe Shelters
-        const shelterIcon = L.divIcon({
-            className: 'custom-marker',
-            html: '<div class="w-8 h-8 bg-green-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white"><i class="fa-solid fa-tents text-sm"></i></div>',
+        // 1. Update active tab UI styling
+        const buttons = document.querySelectorAll('#bimstec-tabs button');
+        buttons.forEach(btn => {
+            if (btn.id === `tab-${code}`) {
+                btn.className = "px-3 py-2 bg-primary text-white font-bold rounded-xl text-xs transition border border-transparent shadow-sm";
+            } else {
+                btn.className = "px-3 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition border border-gray-200 dark:border-slate-700";
+            }
+        });
+
+        // 2. Update hotline card values
+        document.getElementById('bimstec-help-nat').textContent = data.nat_help;
+        document.getElementById('bimstec-help-nat').href = `tel:${data.nat_help}`;
+        document.getElementById('bimstec-help-dis').textContent = data.dis_help;
+        document.getElementById('bimstec-help-dis').href = `tel:${data.dis_help}`;
+        document.getElementById('bimstec-active-alerts-status').innerHTML = `
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            ${data.shelters} Safe Shelters Operational
+        `;
+
+        // 3. Clear existing map items
+        if (activePolygon) disasterMap.removeLayer(activePolygon);
+        if (activeRouteLine) disasterMap.removeLayer(activeRouteLine);
+        mapMarkers.forEach(m => disasterMap.removeLayer(m));
+        mapMarkers = [];
+
+        // 4. Fly Map to Country Capital
+        disasterMap.flyTo(data.capital, 12, { animate: true, duration: 1.5 });
+
+        // 5. Draw Country Danger Polygon
+        activePolygon = L.polygon(data.danger_polygon, {
+            color: '#DC2626',
+            fillColor: '#DC2626',
+            fillOpacity: 0.25,
+            weight: 2
+        }).addTo(disasterMap).bindPopup(`<b>Warning:</b> Active Danger Zone (${data.name})`);
+
+        // 6. Draw Evacuation Route
+        activeRouteLine = L.polyline(data.safe_route, {
+            color: '#3B82F6', 
+            weight: 5, 
+            dashArray: '10, 10',
+            className: 'route-line-anim'
+        }).addTo(disasterMap).bindPopup(`Evacuation Path`);
+
+        // 7. Add Shelters List Markers on Map
+        const shelterIconSchool = L.divIcon({
+            className: 'custom-shelter-marker',
+            html: '<div class="w-8 h-8 bg-green-600 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white"><i class="fa-solid fa-school text-xs"></i></div>',
             iconSize: [32, 32]
         });
 
-        L.marker([37.765, -122.43], {icon: shelterIcon}).addTo(map).bindPopup('Central High School Gym (Safe)');
-        L.marker([37.785, -122.44], {icon: shelterIcon}).addTo(map).bindPopup('Community Rec Center (Safe)');
+        const shelterIconBuilding = L.divIcon({
+            className: 'custom-shelter-marker',
+            html: '<div class="w-8 h-8 bg-emerald-600 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white"><i class="fa-solid fa-building-shield text-xs"></i></div>',
+            iconSize: [32, 32]
+        });
 
-        // User Location (Demo)
-        L.marker([37.7749, -122.4194], {
+        data.shelters_list.forEach(s => {
+            const icon = s.type === 'school' ? shelterIconSchool : shelterIconBuilding;
+            const marker = L.marker([s.lat, s.lon], { icon: icon })
+                .addTo(disasterMap)
+                .bindPopup(`<b>${s.name}</b><br><span class="text-xs text-gray-500">${s.beds} beds available</span>`);
+            mapMarkers.push(marker);
+        });
+
+        // 8. Put user mock location marker at capital center
+        const userMarker = L.marker(data.capital, {
             icon: L.divIcon({
-                className: 'custom-marker',
+                className: 'custom-user-marker',
                 html: '<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>',
                 iconSize: [16, 16]
             })
-        }).addTo(map).bindPopup('You are here');
-
-        // Safe Route (Polyline)
-        const safeRoute = [
-            [37.7749, -122.4194], // user
-            [37.7749, -122.425],
-            [37.765, -122.425],
-            [37.765, -122.43] // shelter
-        ];
-        
-        // Add animated dashed line for route
-        L.polyline(safeRoute, {
-            color: '#3B82F6', 
-            weight: 4, 
-            dashArray: '10, 10',
-            className: 'route-line-anim'
-        }).addTo(map).bindPopup('Suggested Safe Route');
-    });
+        }).addTo(disasterMap).bindPopup('Simulation: Current Position');
+        mapMarkers.push(userMarker);
+    }
 </script>
 
 <style>

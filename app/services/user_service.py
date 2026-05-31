@@ -80,7 +80,7 @@ def add_emergency_contact(
     contact = EmergencyContact(
         user_id=user_id,
         name=contact_data.name,
-        relationship=contact_data.relationship,
+        relation=contact_data.relationship,
         phone=contact_data.phone,
         email=contact_data.email,
         is_primary=contact_data.is_primary,

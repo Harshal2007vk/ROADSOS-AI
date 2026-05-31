@@ -373,7 +373,7 @@ async def get_profile(request: Request, db: Session = Depends(get_db)):
         "profile": profile_data,
         "emergency_contacts": [
             {"id": c.id, "name": c.name, "phone": c.phone,
-             "relationship": c.relationship, "is_primary": c.is_primary}
+             "relationship": c.relation, "is_primary": c.is_primary}
             for c in contacts
         ],
     }
@@ -391,6 +391,66 @@ async def update_profile(
     return {"success": True, "message": "Profile updated successfully"}
 
 
+# ─── FRONTEND-ALIGNED ALIAS ROUTES ───────────────────────────────────────────
+# profile.html calls PUT /api/users/me/medical with {blood_type, allergies,
+# medical_conditions, medications, emergency_contacts[]}.
+# These aliases translate and delegate to the existing service layer.
+
+@router.put("/users/me/medical")
+async def update_my_medical(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Alias used by profile.html saveProfile().
+    Accepts { blood_type, allergies, medical_conditions, medications,
+              emergency_contacts: [{name, phone, relation}] }
+    and maps them to the canonical backend schema.
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    session = get_current_user(request)
+    user_id = session.get("user_id", 1) if session else 1
+
+    # ── Map field name differences ──────────────────────────────────────────
+    mapped = {
+        "blood_group":        body.get("blood_type") or body.get("blood_group"),
+        "allergies":          body.get("allergies"),
+        "medical_conditions": body.get("medical_conditions"),
+        "medications":        body.get("medications"),
+    }
+    # Strip None so model_dump(exclude_none) works correctly
+    mapped = {k: v for k, v in mapped.items() if v is not None}
+
+    profile_update = MedicalProfileUpdate(**mapped)
+    update_medical_profile(db, user_id, profile_update)
+
+    # ── Sync emergency contacts list ────────────────────────────────────────
+    raw_contacts = body.get("emergency_contacts", [])
+    if isinstance(raw_contacts, list):
+        # Delete all existing contacts for this user, then re-insert
+        db.query(EmergencyContact).filter(EmergencyContact.user_id == user_id).delete()
+        db.commit()
+        for idx, c in enumerate(raw_contacts):
+            name = (c.get("name") or "").strip()
+            phone = (c.get("phone") or "").strip()
+            relation = (c.get("relation") or c.get("relationship") or "Family").strip()
+            if name and phone:
+                contact = EmergencyContact(
+                    user_id=user_id,
+                    name=name,
+                    phone=phone,
+                    relation=relation,
+                    is_primary=(idx == 0),
+                )
+                db.add(contact)
+        db.commit()
+
+    return {"success": True, "message": "Medical profile updated successfully"}
+
+
 @router.post("/profile/contacts")
 async def add_contact(
     request: Request,
@@ -406,7 +466,7 @@ async def add_contact(
             "id": new_contact.id,
             "name": new_contact.name,
             "phone": new_contact.phone,
-            "relationship": new_contact.relationship,
+            "relationship": new_contact.relation,
             "is_primary": new_contact.is_primary,
         }
     }
@@ -442,6 +502,34 @@ async def generate_qr(request: Request, db: Session = Depends(get_db)):
 
     b64, file_path = generate_medical_qr(user, profile, contacts)
     return {"success": True, "qr_base64": b64, "file_path": file_path}
+
+
+@router.post("/users/me/medical/qr")
+@router.get("/users/me/medical/qr")
+async def generate_my_medical_qr(request: Request, db: Session = Depends(get_db)):
+    """Alias used by profile.html generateQR() — POST /api/users/me/medical/qr.
+    Generates QR from the user's saved medical profile and returns base64 PNG.
+    """
+    session = get_current_user(request)
+    user_id = session.get("user_id", 1) if session else 1
+
+    user = db.query(User).filter(User.id == user_id).first()
+    profile = db.query(MedicalProfile).filter(MedicalProfile.user_id == user_id).first()
+    contacts = db.query(EmergencyContact).filter(EmergencyContact.user_id == user_id).all()
+
+    if not profile:
+        # Auto-create a blank profile so the QR can still be generated
+        profile = MedicalProfile(user_id=user_id)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+
+    try:
+        b64, file_path = generate_medical_qr(user, profile, contacts)
+        return {"success": True, "qr_base64": b64, "file_path": file_path}
+    except Exception as e:
+        logger.error(f"QR generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"QR generation failed: {str(e)}")
 
 
 # ─── REPORTS ─────────────────────────────────────────────────────────────────

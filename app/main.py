@@ -80,7 +80,7 @@ def _seed_demo_data():
             contact = EmergencyContact(
                 user_id=user.id,
                 name="Demo Contact",
-                relationship="Family",
+                relation="Family",
                 phone="+91 9123456789",
                 is_primary=True,
             )

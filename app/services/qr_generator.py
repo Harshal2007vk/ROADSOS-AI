@@ -26,7 +26,7 @@ def generate_medical_qr(
         "medications": profile.medications or "None",
         "organ_donor": profile.organ_donor,
         "emergency_contacts": [
-            {"name": c.name, "phone": c.phone, "rel": c.relationship}
+            {"name": c.name, "phone": c.phone, "rel": c.relation}
             for c in contacts[:3]
         ],
         "app": "ROADSoS AI",

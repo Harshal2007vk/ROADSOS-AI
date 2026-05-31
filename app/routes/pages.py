@@ -40,6 +40,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/auth/login")
 
     user_id = session.get("user_id")
+    user = db.query(User).filter(User.id == user_id).first() # Fetch user record
     incidents = get_user_incidents(db, user_id, limit=5)
     readiness = calculate_readiness_score(db, user_id)
 
@@ -61,13 +62,14 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
             "severity_level": i.severity_level,
             "severity_score": i.severity_score,
             "ai_summary": i.ai_summary,
-            "created_at": i.created_at.strftime("%d %b %Y, %I:%M %p"),
+            "created_at": i.created_at,
             "recommended_actions": ai_data.get("recommended_actions", []),
         })
 
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "session": session,
+        "user": user, # Pass user object to template
         "incidents": incidents_data,
         "active_count": len(active),
         "resolved_count": len(resolved),

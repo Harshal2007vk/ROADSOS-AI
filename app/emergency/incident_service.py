@@ -119,7 +119,7 @@ def create_sos_incident(
         }
 
     contacts_snapshot = [
-        {"name": c.name, "phone": c.phone, "relationship": c.relationship}
+        {"name": c.name, "phone": c.phone, "relationship": c.relation}
         for c in contacts
     ]
 

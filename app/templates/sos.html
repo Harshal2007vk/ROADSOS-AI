@@ -131,6 +131,63 @@
         </div>
     </div>
 
+    <!-- Practical Safety Tools (Calling Grid & Safe Arrival Check-in) -->
+    <div class="glass dark:glass-dark rounded-3xl p-6 mb-6 shadow-sm border border-gray-100 dark:border-slate-700">
+        <h2 class="text-lg font-bold flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-toolbox text-primary"></i>
+            Quick Emergency Assistance
+        </h2>
+        
+        <!-- Call Buttons Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            <a href="tel:108" class="p-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 border border-red-200/50 dark:border-red-900/30 rounded-2xl flex items-center gap-3 transition active:scale-95">
+                <div class="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center text-white text-lg flex-shrink-0">
+                    <i class="fa-solid fa-ambulance"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Ambulance</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Call 108</p>
+                </div>
+            </a>
+            
+            <a href="tel:100" class="p-4 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 border border-blue-200/50 dark:border-blue-900/30 rounded-2xl flex items-center gap-3 transition active:scale-95">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-lg flex-shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Police</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Call 100</p>
+                </div>
+            </a>
+            
+            <a id="callFamilyBtn" href="tel:112" class="p-4 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl flex items-center gap-3 transition active:scale-95">
+                <div class="w-10 h-10 bg-slate-600 dark:bg-slate-700 rounded-xl flex items-center justify-center text-white text-lg flex-shrink-0">
+                    <i class="fa-solid fa-house-chimney-crack"></i>
+                </div>
+                <div>
+                    <p id="familyContactLabel" class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Family Contact</p>
+                    <p id="familyContactPhone" class="text-sm font-bold text-gray-900 dark:text-white">Call 112</p>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Safe Arrival Check-In -->
+        <div class="bg-emerald-50 dark:bg-emerald-950/10 border border-emerald-200/60 dark:border-emerald-900/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-lg flex-shrink-0">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">Safe Arrival Check-In</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">One-tap coordinates SMS update to let family know you arrived safely.</p>
+                </div>
+            </div>
+            <button onclick="triggerSafeCheckIn()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> I'm Safe (Check-In)
+            </button>
+        </div>
+    </div>
+
     <!-- Current Location Map -->
     <div class="glass dark:glass-dark rounded-3xl p-6 mb-6 shadow-sm border border-gray-100 dark:border-slate-700">
         <div class="flex items-center justify-between mb-4">
@@ -149,6 +206,62 @@
         </h2>
         <div id="ai-content" class="text-blue-800 dark:text-blue-200 text-sm font-medium leading-relaxed space-y-2">
             Analyzing situation...
+        </div>
+        
+        <!-- Emergency Share Broadcaster Intents -->
+        <div class="mt-6 pt-6 border-t border-blue-200/50 dark:border-blue-850/20">
+            <h4 class="text-xs font-black uppercase tracking-wider text-blue-700 dark:text-blue-400 mb-3"><i class="fa-solid fa-bullhorn"></i> Emergency Broadcast Channels</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button onclick="broadcastSOS('sms')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow">
+                    <i class="fa-solid fa-message"></i> SMS Broadcast
+                </button>
+                <button onclick="broadcastSOS('whatsapp')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow">
+                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                </button>
+                <button onclick="broadcastSOS('telegram')" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow">
+                    <i class="fa-brands fa-telegram"></i> Telegram
+                </button>
+                <button onclick="copyFamilyTrackingLink()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow">
+                    <i class="fa-solid fa-link"></i> Family Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nearby Citizen Responder Card (Visible during active incident) -->
+    <div id="citizen-responders" class="hidden glass dark:glass-dark rounded-3xl p-6 mb-6 shadow-sm border border-emerald-500/10">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-people-carry-box text-emerald-500"></i> Nearby Citizen Responders
+        </h2>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
+            Alerts automatically dispatched to active medical responders and civilian volunteers in a 5km radius.
+        </p>
+        <div class="space-y-3" id="responders-list">
+            <!-- Simulated Citizen Responders -->
+            <div class="flex items-center justify-between p-3 bg-emerald-500/5 dark:bg-emerald-950/15 border border-emerald-500/10 rounded-xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-black text-xs flex items-center justify-center">AS</div>
+                    <div>
+                        <div class="text-sm font-bold text-gray-900 dark:text-white">Arjun Sharma (1.2 km away)</div>
+                        <div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Certified First-Aid Responder · Dispatched</div>
+                    </div>
+                </div>
+                <a href="tel:+919876543210" class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-700 border border-gray-100 dark:border-slate-700 flex items-center justify-center transition shadow-sm">
+                    <i class="fa-solid fa-phone text-xs"></i>
+                </a>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-emerald-500/5 dark:bg-emerald-950/15 border border-emerald-500/10 rounded-xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-black text-xs flex items-center justify-center">PD</div>
+                    <div>
+                        <div class="text-sm font-bold text-gray-900 dark:text-white">Priya Das (2.4 km away)</div>
+                        <div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Off-duty Nurse · En-route</div>
+                    </div>
+                </div>
+                <a href="tel:+919123456789" class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-700 border border-gray-100 dark:border-slate-700 flex items-center justify-center transition shadow-sm">
+                    <i class="fa-solid fa-phone text-xs"></i>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -187,6 +300,127 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+    <!-- 🚨 Smart SOS Message Generator Card -->
+    <div id="sos-msg-generator" class="glass dark:glass-dark rounded-3xl p-6 mb-6 shadow-sm border border-orange-200/40 dark:border-orange-900/30">
+        <h2 class="text-lg font-bold flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-bullhorn text-orange-500"></i>
+            Smart SOS Alert Generator
+        </h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Auto-generate a pre-filled emergency message with your location. No network required to send.</p>
+
+        <!-- Preview Message Card -->
+        <div id="sos-msg-preview" class="bg-slate-900 text-green-400 font-mono text-xs rounded-2xl p-4 mb-4 leading-relaxed whitespace-pre-wrap border border-green-500/20 shadow-inner min-h-[120px]" style="font-size:0.72rem;">Press "Generate Alert" to create your emergency message...</div>
+
+        <!-- Generate Button -->
+        <button onclick="generateSOSMessage()" class="w-full mb-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-black rounded-xl shadow-lg shadow-orange-500/30 text-sm transition active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Generate Emergency Alert
+        </button>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="sos-msg-actions" style="display:none !important;">
+            <button onclick="sendSOSSMS()" id="btn-send-sms" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-solid fa-message text-lg"></i> Send SMS
+            </button>
+            <button onclick="sendSOSWhatsApp()" id="btn-send-wa" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+            </button>
+            <button onclick="copySOSMessage()" id="btn-copy-msg" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-solid fa-copy text-lg"></i> Copy Alert
+            </button>
+            <button onclick="shareSOSLocation()" id="btn-share-loc" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-solid fa-share-nodes text-lg"></i> Share Location
+            </button>
+        </div>
+        <div id="sos-msg-actions-visible" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button onclick="sendSOSSMS()" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-solid fa-message text-lg"></i> Send SMS
+            </button>
+            <button onclick="sendSOSWhatsApp()" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+            </button>
+            <button onclick="copySOSMessage()" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-solid fa-copy text-lg"></i> Copy Alert
+            </button>
+            <button onclick="shareSOSLocation()" class="flex flex-col items-center justify-center gap-1.5 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition active:scale-95 shadow">
+                <i class="fa-solid fa-share-nodes text-lg"></i> Share Location
+            </button>
+        </div>
+    </div>
+
+    <!-- Offline First Aid Guides Card -->
+    <div class="glass dark:glass-dark rounded-3xl p-6 mb-6 shadow-sm border border-gray-100 dark:border-slate-700">
+        <h2 class="text-lg font-bold flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-kit-medical text-primary"></i>
+            Offline First-Aid Guidelines
+        </h2>
+        
+        <!-- Tabs List -->
+        <div class="flex border-b border-gray-200 dark:border-slate-700 mb-4 overflow-x-auto">
+            <button type="button" onclick="switchFirstAidTab('cpr')" id="tab-cpr" class="px-4 py-2 text-sm font-bold border-b-2 border-primary text-primary whitespace-nowrap">
+                🫀 CPR Steps
+            </button>
+            <button type="button" onclick="switchFirstAidTab('bleeding')" id="tab-bleeding" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 whitespace-nowrap">
+                🩸 Bleeding Control
+            </button>
+            <button type="button" onclick="switchFirstAidTab('burns')" id="tab-burns" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 whitespace-nowrap">
+                🔥 Burn Treatment
+            </button>
+            <button type="button" onclick="switchFirstAidTab('fractures')" id="tab-fractures" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 whitespace-nowrap">
+                🦴 Fractures & Splints
+            </button>
+        </div>
+        
+        <!-- Tab Contents -->
+        <div id="first-aid-content" class="text-sm leading-relaxed space-y-4">
+            <!-- CPR -->
+            <div id="content-cpr" class="space-y-3">
+                <div class="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl text-xs font-bold text-red-700 dark:text-red-400 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i> IF VICTIM IS UNRESPONSIVE AND NOT BREATHING, CALL 112 FIRST!
+                </div>
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><b>Check responsiveness</b>: Tap shoulders and shout "Are you okay?".</li>
+                    <li><b>Call 112</b>: If no response, ask someone to call emergency and get an AED.</li>
+                    <li><b>Position the victim</b>: Place flat on their back on a firm surface.</li>
+                    <li><b>Start Chest Compressions</b>: Place heel of one hand on the center of chest, other hand on top. Push <b>hard and fast</b> (100-120 beats/min, 2 inches deep).</li>
+                    <li><b>Rescue Breaths</b>: Give 2 breaths after every 30 compressions if trained. Otherwise, do <b>Hands-Only CPR</b> continuously.</li>
+                </ol>
+            </div>
+            
+            <!-- Bleeding -->
+            <div id="content-bleeding" class="space-y-3 hidden">
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><b>Ensure safety</b>: Put on gloves if available before touching blood.</li>
+                    <li><b>Apply direct pressure</b>: Use a clean cloth or sterile bandage. Press firmly on the wound with your hands.</li>
+                    <li><b>Maintain pressure</b>: Keep pressing for at least 5-10 minutes without looking.</li>
+                    <li><b>Elevate wound</b>: Raise the injured limb above heart level to slow bleeding.</li>
+                    <li><b>Add layers</b>: If blood seeps through, place another cloth on top. Do NOT remove the original dressing.</li>
+                    <li><b>Consider a Tourniquet</b>: For severe limb bleeding that won't stop, apply a tourniquet 2-3 inches above the wound.</li>
+                </ol>
+            </div>
+            
+            <!-- Burns -->
+            <div id="content-burns" class="space-y-3 hidden">
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><b>Stop the burn</b>: Remove the person from the heat or electrical source.</li>
+                    <li><b>Cool the burn</b>: Run <b>cool, gentle running tap water</b> over the burn for 10-20 minutes. Do NOT use ice or freezing water.</li>
+                    <li><b>Remove clothing</b>: Gently take off jewelry, belts, or clothing near the burn, unless stuck to the skin.</li>
+                    <li><b>Protect the burn</b>: Cover loosely with a clean, dry, non-stick bandage or plastic wrap.</li>
+                    <li><b>Avoid home remedies</b>: Do NOT apply butter, toothpaste, oils, or ointments as they trap heat and invite infection.</li>
+                </ol>
+            </div>
+            
+            <!-- Fractures -->
+            <div id="content-fractures" class="space-y-3 hidden">
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><b>Control any bleeding</b>: Apply pressure to open wounds and cover with sterile dressing.</li>
+                    <li><b>Do NOT realign the bone</b>: Never try to push a protruding bone back or reset it.</li>
+                    <li><b>Immobilize the limb</b>: Apply a splint using rigid cardboard, rolled newspapers, or sticks, securing it above and below the fracture site.</li>
+                    <li><b>Apply cold pack</b>: Wrap ice in a towel and apply to ease swelling (do not place ice directly on skin).</li>
+                    <li><b>Keep victim still</b>: Prevent movement and keep the person warm until paramedics arrive to prevent shock.</li>
+                </ol>
             </div>
         </div>
     </div>
@@ -614,13 +848,306 @@
         }
     }
 
+    let routePolyline = null;
+    let hospitalMarker = null;
+    let citizenMarkers = [];
+
+    // ─── WEB AUDIO SIREN BEACON SYNTHESIS (Offline Friendly) ───────────────────
+    let sirenInterval = null;
+    let audioCtx = null;
+    let primaryOsc = null;
+    let sirenVolume = null;
+
+    function playSirenSynthesizer() {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            sirenVolume = audioCtx.createGain();
+            sirenVolume.gain.setValueAtTime(0.08, audioCtx.currentTime); // keep volume subtle but clear
+            sirenVolume.connect(audioCtx.destination);
+
+            primaryOsc = audioCtx.createOscillator();
+            primaryOsc.type = 'sawtooth';
+            primaryOsc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            primaryOsc.connect(sirenVolume);
+            primaryOsc.start();
+
+            let toggle = true;
+            sirenInterval = setInterval(() => {
+                if (!audioCtx) return;
+                const freq = toggle ? 960 : 770; // cycle frequencies
+                primaryOsc.frequency.linearRampToValueAtTime(freq, audioCtx.currentTime + 0.35);
+                toggle = !toggle;
+            }, 400);
+        } catch (e) {
+            console.warn("Web Audio context failed:", e);
+        }
+    }
+
+    function stopSirenSynthesizer() {
+        if (sirenInterval) {
+            clearInterval(sirenInterval);
+            sirenInterval = null;
+        }
+        if (primaryOsc) {
+            try { primaryOsc.stop(); } catch(e){}
+            primaryOsc = null;
+        }
+        if (audioCtx) {
+            try { audioCtx.close(); } catch(e){}
+            audioCtx = null;
+        }
+    }
+
+    // ─── SPEECH SYNTHESIS EMERGENCY TTS ───────────────────────────────────────
+    function speakEmergencyInstructions(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // clear previous speech
+            
+            // Clean markdown tokens
+            const clean = text.replace(/\*\*|#|\*|-/g, "").substring(0, 250);
+            const utterance = new SpeechSynthesisUtterance(clean);
+            
+            // Try resolving local voice models
+            const voices = window.speechSynthesis.getVoices();
+            const voice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN') || v.lang.includes('en-US'));
+            if (voice) utterance.voice = voice;
+            
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // ─── OSRM LIVE ROUTE TRACER ───────────────────────────────────────────────
+    async function drawOSRMRoute(startLat, startLon, destLat, destLon) {
+        try {
+            const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${destLon},${destLon}?overview=full&geometries=geojson`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            
+            if (data.routes && data.routes.length > 0) {
+                const route = data.routes[0];
+                const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]); // [lon, lat] -> [lat, lon]
+                
+                if (routePolyline) map.removeLayer(routePolyline);
+                
+                routePolyline = L.polyline(coordinates, {
+                    color: '#2563eb', // bold blue route
+                    weight: 6,
+                    opacity: 0.8,
+                    dashArray: '10, 10',
+                    className: 'route-line-anim'
+                }).addTo(map);
+                
+                map.fitBounds(routePolyline.getBounds(), { padding: [30, 30] });
+            }
+        } catch (e) {
+            console.warn("OSRM Route failed, drawing straight line vector");
+            if (routePolyline) map.removeLayer(routePolyline);
+            routePolyline = L.polyline([[startLat, startLon], [destLat, destLon]], {
+                color: '#ef4444',
+                weight: 5,
+                dashArray: '5, 5'
+            }).addTo(map);
+        }
+    }
+
+    // ─── CIVILIAN RESPONDERS PLOTTER ─────────────────────────────────────────
+    function displayCitizenRespondersOnMap(lat, lon) {
+        citizenMarkers.forEach(m => map.removeLayer(m));
+        citizenMarkers = [];
+
+        const volunteers = [
+            { name: "Arjun Sharma", lat: lat + 0.003, lon: lon - 0.002, initial: "AS" },
+            { name: "Priya Das", lat: lat - 0.002, lon: lon + 0.004, initial: "PD" }
+        ];
+
+        volunteers.forEach(v => {
+            const customIcon = L.divIcon({
+                className: 'custom-volunteer-marker',
+                html: `<div class="w-8 h-8 bg-emerald-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-extrabold text-[10px] animate-pulse">${v.initial}</div>`,
+                iconSize: [32, 32]
+            });
+            const marker = L.marker([v.lat, v.lon], { icon: customIcon })
+                .addTo(map)
+                .bindPopup(`<b>Volunteer:</b> ${v.name} (Dispatched)`);
+            citizenMarkers.push(marker);
+        });
+    }
+
+    // ─── INTENT SHARER ────────────────────────────────────────────────────────
+    function broadcastSOS(channel) {
+        if (!activeIncidentId) return alert("Incident not registered yet.");
+        const trackingLink = `${window.location.origin}/track/${activeIncidentId}`;
+        const msg = `🚨 EMERGENCY ALERT! possible accident detected near Lat ${userLocation?.lat?.toFixed(4) || 0}, Lon ${userLocation?.lon?.toFixed(4) || 0}. Help is required immediately. View live tracking: ${trackingLink}`;
+        
+        if (channel === 'sms') {
+            window.location.href = `sms:?body=${encodeURIComponent(msg)}`;
+        } else if (channel === 'whatsapp') {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        } else if (channel === 'telegram') {
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(trackingLink)}&text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    }
+
+    async function activateSOS() {
+        sosActive = true;
+        document.getElementById('countdownDisplay').classList.add('hidden');
+        document.getElementById('sosSection').classList.add('hidden');
+        
+        const banner = document.getElementById('statusBanner');
+        banner.classList.remove('hidden');
+        banner.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800');
+        
+        // Synthesise ambulance sound locally
+        playSirenSynthesizer();
+
+        if ('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 300]);
+
+        let startTime = Date.now();
+        elapsedInterval = setInterval(() => {
+            const diff = Math.floor((Date.now() - startTime) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            document.getElementById('elapsedTime').textContent = `${m}:${s}`;
+        }, 1000);
+
+        try {
+            const res = await fetch('/api/sos/trigger', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    incident_type: 'medical',
+                    latitude: userLocation?.lat || 0,
+                    longitude: userLocation?.lon || 0,
+                    speed_kmh: userLocation?.speed ? (userLocation.speed * 3.6) : null,
+                    heading: userLocation?.heading || null
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                activeIncidentId = data.incident_id;
+                document.getElementById('statusText').textContent = `Incident ${activeIncidentId} created. AI Triage complete.`;
+                
+                const linkArea = document.getElementById('familyLinkArea');
+                if (linkArea) linkArea.classList.remove('hidden');
+                
+                // Auto-trigger SMS intent to family members
+                setTimeout(() => broadcastSOS('sms'), 500);
+
+                setTimeout(() => fetchAIAnalysis(activeIncidentId), 1500);
+            } else {
+                throw new Error("Failed to create incident");
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('statusText').textContent = "Failed to connect to server. SOS queued offline.";
+            broadcastSOS('sms'); // Auto fallback trigger
+        }
+    }
+
+    async function triggerCrashSOS(speed, force) {
+        cancelCrashSOS();
+        
+        sosActive = true;
+        document.getElementById('countdownDisplay').classList.add('hidden');
+        document.getElementById('sosSection').classList.add('hidden');
+        
+        const banner = document.getElementById('statusBanner');
+        banner.classList.remove('hidden');
+        banner.classList.add('bg-gradient-to-r', 'from-red-600', 'to-red-800');
+        
+        document.getElementById('statusText').textContent = `Accident detected! Dispatching automated report...`;
+        
+        playSirenSynthesizer();
+
+        let startTime = Date.now();
+        elapsedInterval = setInterval(() => {
+            const diff = Math.floor((Date.now() - startTime) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            document.getElementById('elapsedTime').textContent = `${m}:${s}`;
+        }, 1000);
+
+        try {
+            const res = await fetch('/api/sos/trigger', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    incident_type: 'accident',
+                    latitude: userLocation?.lat || 0,
+                    longitude: userLocation?.lon || 0,
+                    speed_kmh: speed,
+                    heading: userLocation?.heading || null,
+                    description: `Automatic Crash Detection: High G-Force collision detected. Speed: ${speed.toFixed(1)} km/h. Deceleration force: ${force.toFixed(1)} m/s².`,
+                    acceleration_x: crashAccData.x,
+                    acceleration_y: crashAccData.y,
+                    acceleration_z: crashAccData.z
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                activeIncidentId = data.incident_id;
+                document.getElementById('statusText').textContent = `Automated SOS incident ${activeIncidentId} created. AI triage & resources loaded.`;
+                
+                const linkArea = document.getElementById('familyLinkArea');
+                if (linkArea) linkArea.classList.remove('hidden');
+                
+                // Auto-trigger SMS intent to family members
+                setTimeout(() => broadcastSOS('sms'), 500);
+                
+                setTimeout(() => fetchAIAnalysis(activeIncidentId), 1500);
+            } else {
+                throw new Error("SOS API returned error");
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('statusText').textContent = "Connection lost. Accident report stored in Offline Queue.";
+            broadcastSOS('sms'); // Auto fallback intent trigger
+        }
+    }
+
     async function fetchAIAnalysis(incidentId) {
         try {
             const res = await fetch(`/api/incidents/${incidentId}`);
             if (res.ok) {
                 const data = await res.json();
                 document.getElementById('ai-instructions').classList.remove('hidden');
+                document.getElementById('citizen-responders').classList.remove('hidden');
                 
+                // 1. Speak Guidelines
+                if (data.ai_summary) speakEmergencyInstructions(data.ai_summary);
+
+                // 2. Pulse banner red if high/critical
+                const statusBanner = document.getElementById('statusBanner');
+                if (data.severity_level === 'critical' || data.severity_level === 'high') {
+                    statusBanner.classList.add('emergency-mode');
+                }
+
+                // 3. Leaflet routing
+                const hospital = data.nearby_resources ? data.nearby_resources.find(r => r.type === 'hospital' || r.type === 'clinic') : null;
+                if (hospital && userLocation) {
+                    drawOSRMRoute(userLocation.lat, userLocation.lon, hospital.latitude, hospital.longitude);
+                    
+                    const hospIcon = L.divIcon({
+                        className: 'custom-hosp-marker',
+                        html: '<div class="w-10 h-10 bg-red-600 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-white"><i class="fa-solid fa-hospital text-sm animate-bounce"></i></div>',
+                        iconSize: [40, 40]
+                    });
+                    if (hospitalMarker) map.removeLayer(hospitalMarker);
+                    hospitalMarker = L.marker([hospital.latitude, hospital.longitude], { icon: hospIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>Nearest Hospital:</b> ${hospital.name}`);
+                }
+
+                // 4. Draw volunteers
+                if (userLocation) {
+                    displayCitizenRespondersOnMap(userLocation.lat, userLocation.lon);
+                }
+
                 let html = `<p class="font-bold text-blue-900 dark:text-blue-100 mb-2">${data.ai_summary || 'Follow emergency protocols.'}</p>`;
                 
                 if (data.recommended_actions && data.recommended_actions.length > 0) {
@@ -641,6 +1168,16 @@
     async function cancelSOS() {
         if (!confirm("Are you sure you want to cancel the emergency alert?")) return;
         
+        stopSirenSynthesizer();
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+        document.getElementById('statusBanner').classList.remove('emergency-mode');
+
+        if (routePolyline) { map.removeLayer(routePolyline); routePolyline = null; }
+        if (hospitalMarker) { map.removeLayer(hospitalMarker); hospitalMarker = null; }
+        citizenMarkers.forEach(m => map.removeLayer(m));
+        citizenMarkers = [];
+
         if (activeIncidentId) {
             await fetch(`/api/incidents/${activeIncidentId}/resolve`, { method: 'POST' });
         }
@@ -651,6 +1188,7 @@
         
         document.getElementById('statusBanner').classList.add('hidden');
         document.getElementById('ai-instructions').classList.add('hidden');
+        document.getElementById('citizen-responders').classList.add('hidden');
         document.getElementById('sosSection').classList.remove('hidden');
         document.getElementById('elapsedTime').textContent = "00:00";
         
@@ -659,11 +1197,183 @@
     }
 
     function copyFamilyTrackingLink() {
-        if (!activeIncidentId) return;
+        if (!activeIncidentId) return alert("Incident not generated yet.");
         const link = `${window.location.origin}/track/${activeIncidentId}`;
         navigator.clipboard.writeText(link);
         alert("✅ Family tracking link copied to clipboard: " + link);
     }
+
+    // ─── FIRST AID TAB SWITCHER ────────────────────────────────────────────────
+    function switchFirstAidTab(tab) {
+        const tabs = ['cpr', 'bleeding', 'burns', 'fractures'];
+        tabs.forEach(t => {
+            const btn = document.getElementById(`tab-${t}`);
+            const content = document.getElementById(`content-${t}`);
+            if (t === tab) {
+                btn.classList.add('border-primary', 'text-primary');
+                btn.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                content.classList.remove('hidden');
+            } else {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                content.classList.add('hidden');
+            }
+        });
+    }
+
+    // ─── SAFE ARRIVAL CHECK-IN ────────────────────────────────────────────────
+    function triggerSafeCheckIn() {
+        const btn = document.querySelector('button[onclick="triggerSafeCheckIn()"]');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Getting location...' ; }
+
+        const doSend = (lat, lon) => {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString('en-IN');
+            const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+            const msg = `✅ SAFE ARRIVAL CHECK-IN\n\nHi, I wanted to let you know I arrived safely.\n\n📍 My Location: ${mapsLink}\n🕐 Time: ${timeStr} on ${dateStr}\n\n— Sent via ROADSoS AI`;
+
+            window.location.href = `sms:?body=${encodeURIComponent(msg)}`;
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> ✅ Check-In Sent!';
+                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                btn.classList.add('bg-gray-400');
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> I\'m Safe (Check-In)';
+                    btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                    btn.classList.remove('bg-gray-400');
+                    btn.disabled = false;
+                }, 4000);
+            }
+        };
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                pos => doSend(pos.coords.latitude.toFixed(6), pos.coords.longitude.toFixed(6)),
+                () => doSend(userLocation?.lat?.toFixed(6) || '0.000000', userLocation?.lon?.toFixed(6) || '0.000000'),
+                { timeout: 5000 }
+            );
+        } else {
+            doSend(userLocation?.lat?.toFixed(6) || '0.000000', userLocation?.lon?.toFixed(6) || '0.000000');
+        }
+    }
+
+    // ─── FAMILY CONTACT LOADER ─────────────────────────────────────────────────
+    async function loadFamilyContact() {
+        try {
+            const res = await fetch('/api/user/profile');
+            if (res.ok) {
+                const data = await res.json();
+                const contact = data.emergency_contact_phone || data.emergency_contact || null;
+                const name = data.emergency_contact_name || 'Family Contact';
+                if (contact) {
+                    const callBtn = document.getElementById('callFamilyBtn');
+                    if (callBtn) callBtn.href = `tel:${contact}`;
+                    const label = document.getElementById('familyContactPhone');
+                    if (label) label.textContent = `Call ${contact}`;
+                    const nameLabel = document.getElementById('familyContactLabel');
+                    if (nameLabel) nameLabel.textContent = name;
+                }
+            }
+        } catch(e) { console.warn('Family contact load failed', e); }
+    }
+
+    // ─── SMART SOS MESSAGE GENERATOR ──────────────────────────────────────────
+    let currentSOSMessage = '';
+
+    function generateSOSMessage() {
+        const now = new Date();
+        const incidentId = activeIncidentId || `INC-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*900+100)}`;
+        const lat = userLocation?.lat?.toFixed(4) || '0.0000';
+        const lon = userLocation?.lon?.toFixed(4) || '0.0000';
+        const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+        currentSOSMessage =
+`🚨 ROADSoS AI EMERGENCY ALERT 🚨
+
+Possible accident detected.
+
+👤 Name: [Your Name]
+🩸 Blood Group: [Your Blood Group]
+
+📍 Location:
+${mapsLink}
+
+🆔 Incident ID:
+${incidentId}
+
+🕐 Time: ${timeStr}
+
+Immediate assistance required.
+Please call 112 / 108 immediately.
+
+— Sent via ROADSoS AI`;
+
+        document.getElementById('sos-msg-preview').textContent = currentSOSMessage;
+        document.getElementById('sos-msg-actions-visible').classList.remove('hidden');
+
+        // Feedback vibrate
+        if ('vibrate' in navigator) navigator.vibrate([50, 30, 50]);
+    }
+
+    function sendSOSSMS() {
+        if (!currentSOSMessage) { generateSOSMessage(); }
+        window.location.href = `sms:?body=${encodeURIComponent(currentSOSMessage)}`;
+    }
+
+    function sendSOSWhatsApp() {
+        if (!currentSOSMessage) { generateSOSMessage(); }
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(currentSOSMessage)}`, '_blank');
+    }
+
+    function copySOSMessage() {
+        if (!currentSOSMessage) { generateSOSMessage(); }
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(currentSOSMessage).then(() => {
+                const btn = document.querySelector('button[onclick="copySOSMessage()"]');
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i> Copied!';
+                    setTimeout(() => btn.innerHTML = orig, 2000);
+                }
+            });
+        } else {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = currentSOSMessage;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            alert('✅ Emergency message copied!');
+        }
+    }
+
+    async function shareSOSLocation() {
+        if (!currentSOSMessage) { generateSOSMessage(); }
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: '🚨 ROADSoS Emergency Alert',
+                    text: currentSOSMessage,
+                    url: userLocation ? `https://maps.google.com/?q=${userLocation.lat},${userLocation.lon}` : window.location.href
+                });
+            } catch (e) {
+                if (e.name !== 'AbortError') copySOSMessage();
+            }
+        } else {
+            copySOSMessage();
+            alert('📋 Message copied — paste it in any app to share your location.');
+        }
+    }
+
+    // Load family contact on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFamilyContact();
+    });
 </script>
 
 {% set show_nav = true %}
